@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 76">
+  <path d="M32 2 60 12v24c0 17.5-12 27.5-28 38C16 63.5 4 53.5 4 36V12L32 2Z" fill="#0A1730" stroke="#C6A15B" stroke-width="2.5"/>
+  <path d="M32 7.5 54.5 15v21c0 14.5-10 23-22.5 31.5C19.5 59 9.5 50.5 9.5 36V15L32 7.5Z" fill="none" stroke="#C6A15B" stroke-width="1" opacity="0.55"/>
+  <path d="M32 13.5l2.1 4.35 4.8.65-3.5 3.35.85 4.75L32 24.3l-4.25 2.3.85-4.75-3.5-3.35 4.8-.65L32 13.5Z" fill="#C6A15B"/>
+  <path d="M29.4 29h5.2v15.6h7.9v5.2h-7.9V60h-5.2V49.8h-7.9v-5.2h7.9V29Z" fill="#EDE6D6"/>
+  <path d="M32 24.6c.9 1.6 2.6 2.3 2.6 4a2.6 2.6 0 1 1-5.2 0c0-1.7 1.7-2.4 2.6-4Z" fill="#C6A15B" opacity="0.9"/>
+  <path d="M20 66.5h24" stroke="#C6A15B" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

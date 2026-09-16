@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@theme {
+  /* ————— IPPSCC palette: seal navy, brass gold, parchment, seal crimson ————— */
+  --color-ink-950: #04090f;
+  --color-ink-900: #071120;
+  --color-ink-850: #0a1730;
+  --color-ink-800: #0e2042;
+  --color-ink-700: #16305c;
+  --color-ink-600: #1e3f73;
+  --color-ink-100: #dbe4f2;
+  --color-ink-50: #eef2f9;
+
+  --color-gold-200: #f0e2c0;
+  --color-gold-300: #e6cf9a;
+  --color-gold-400: #d8b878;
+  --color-gold-500: #c6a15b;
+  --color-gold-600: #a98542;
+  --color-gold-700: #86682f;
+
+  --color-crimson-300: #e39aa2;
+  --color-crimson-400: #d04552;
+  --color-crimson-500: #b02a37;
+  --color-crimson-600: #8e1f2b;
+  --color-crimson-700: #701824;
+
+  --color-parchment-50: #faf8f2;
+  --color-parchment-100: #f3efe3;
+  --color-parchment-200: #e7e0cd;
+  --color-parchment-300: #d5ccb0;
+
+  --color-line: #22375c;
+
+  /* ————— Typography ————— */
+  --font-display: var(--font-fraunces), "Georgia", "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* ————— Motion ————— */
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-kenburns: kenburns 24s ease-in-out infinite alternate;
+  --animate-pulse-soft: pulse-soft 3.2s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes kenburns {
+    from {
+      transform: scale(1) translateY(0);
+    }
+    to {
+      transform: scale(1.08) translateY(-1.5%);
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink-950 text-white font-sans antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-gold-500);
+  color: var(--color-ink-950);
+}
+
+/* Refined focus state for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Custom scrollbar — quiet, institutional */
+::-webkit-scrollbar {
+  width: 11px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink-950);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ink-600);
+  border-radius: 8px;
+  border: 2px solid var(--color-ink-950);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-600);
+}
+
+/* Film-grain overlay for hero / dark editorial surfaces */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+}
+
+/* Hairline rules used across editorial layouts */
+.rule-gold {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gold-500) 18%,
+    var(--color-gold-500) 82%,
+    transparent
+  );
+  height: 1px;
+}
+
+/* Thin crimson "line of duty" pinstripe */
+.rule-crimson {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-crimson-500) 25%,
+    var(--color-crimson-500) 75%,
+    transparent
+  );
+  height: 2px;
+}
+
+/* Elegant link underline sweep */
+.link-sweep {
+  position: relative;
+}
+.link-sweep::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-sweep:hover::after,
+.link-sweep:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Vertical text for editorial rails */
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Balance long display headlines */
+.balance {
+  text-wrap: balance;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* Freeze SMIL globe motion (static globe remains) */
+  .globe-motion {
+    display: none;
+  }
+}
