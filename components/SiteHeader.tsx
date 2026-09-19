@@ -76,6 +76,9 @@ export default function SiteHeader() {
             <Link href="/events" className="text-ink-100/60 transition-colors hover:text-gold-300">
               Events
             </Link>
+            <Link href="/portal/login" className="text-gold-300/90 transition-colors hover:text-gold-300">
+              Member Portal
+            </Link>
             <a
               href={`mailto:${site.email}`}
               className="text-ink-100/60 transition-colors hover:text-gold-300"

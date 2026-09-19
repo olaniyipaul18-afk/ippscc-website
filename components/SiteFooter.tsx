@@ -91,6 +91,9 @@ export default function SiteFooter() {
             <Link href="/contact" className="text-ink-100/40 transition-colors hover:text-gold-300">
               Contact
             </Link>
+            <Link href="/portal/login" className="text-gold-500/80 transition-colors hover:text-gold-300">
+              Member Portal
+            </Link>
           </div>
         </div>
       </div>

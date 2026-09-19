@@ -1,66 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, FileSearch } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
-import SiteForm, { type FormField } from "@/components/SiteForm";
+import ApplicationWizard from "@/components/ApplicationWizard";
 
 export const metadata: Metadata = {
   title: "Join the Call to Serve — Membership Application",
   description:
-    "Begin your IPPSCC membership application. Membership is more than a card — it is a commitment to service.",
+    "Complete the IPPSCC Membership / Registration Application: personal details, education & qualification, reference & background — then track your reference.",
 };
 
-const fields: FormField[] = [
-  { name: "fullName", label: "Full Name", type: "text", required: true, placeholder: "Your full legal name" },
-  { name: "email", label: "Email Address", type: "email", required: true, placeholder: "you@example.com" },
-  { name: "phone", label: "Phone / WhatsApp", type: "tel", required: false, placeholder: "+1 (___) ___-____" },
-  { name: "country", label: "Country of Residence", type: "text", required: true, placeholder: "e.g. United States, Nigeria…" },
-  {
-    name: "track",
-    label: "Service Track of Interest",
-    type: "select",
-    required: true,
-    options: [
-      "Law Enforcement Chaplaincy",
-      "Public Safety Chaplaincy",
-      "First Responder Support",
-      "Fire & Rescue Chaplaincy",
-      "Crisis & Disaster Chaplaincy",
-      "Correctional Chaplaincy",
-      "Community & Humanitarian Service",
-      "Not yet certain — seeking guidance",
-    ],
-  },
-  {
-    name: "background",
-    label: "Background & Experience",
-    type: "select",
-    required: true,
-    options: [
-      "Serving or retired law enforcement / public safety",
-      "Clergy / ministry leader",
-      "Chaplain (serving or trained)",
-      "Healthcare / emergency services professional",
-      "Military (serving or veteran)",
-      "Community / humanitarian worker",
-      "Other professional background",
-    ],
-  },
-  {
-    name: "calling",
-    label: "Your Calling — Why IPPSCC?",
-    type: "textarea",
-    required: true,
-    rows: 6,
-    placeholder: "In your own words, share why you feel called to professional chaplaincy service with IPPSCC…",
-  },
-];
-
-const affirmations = [
-  "I understand IPPSCC membership is a commitment to character, preparation and responsible service.",
-  "I understand IPPSCC titles, badges and insignia confer no police powers or governmental authority.",
-  "I understand chaplaincy complements — and never replaces — licensed professional care.",
-  "I am willing to undertake formation, training and professional development as required.",
+const journey = [
+  { title: "Application Received", copy: "Submit all three sections and keep your tracking reference." },
+  { title: "Contact & Verification", copy: "The Corps reaches you; referees and credentials are verified." },
+  { title: "Payment", copy: "Membership payment instructions are issued upon successful verification." },
+  { title: "Completion & Login", copy: "Registration completes — login details arrive, and the portal opens." },
 ];
 
 export default function JoinPage() {
@@ -68,49 +24,61 @@ export default function JoinPage() {
     <>
       <PageHero
         kicker="Join the Call to Serve"
-        title="Begin your application."
-        lede="Membership is more than a card — it is a commitment to service. Tell us about your calling, and the Corps will respond with next steps."
+        title="Membership / Registration Application."
+        lede="Three sections, one calling. Your progress saves automatically on this device, and a tracking reference is issued the moment you submit."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Join" }]}
       />
 
       <section className="bg-ink-950">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 sm:py-24 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-10">
-          <div>
-            <div className="lg:sticky lg:top-36">
-              <SectionHeading
-                index="01"
-                kicker="Before You Apply"
-                title="Count the cost. Then come."
-              />
-              <Reveal delay={0.12}>
-                <ul className="mt-8 space-y-4">
-                  {affirmations.map((affirmation, i) => (
-                    <li key={affirmation} className="flex items-start gap-4 border-b border-white/10 pb-4 last:border-0">
-                      <span className="font-mono text-[0.65rem] tracking-[0.2em] text-gold-500">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <p className="text-sm leading-relaxed text-ink-100/70">{affirmation}</p>
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
-              <Reveal delay={0.18}>
-                <p className="mt-6 border-l-2 border-gold-500 pl-5 font-display text-lg leading-relaxed text-white/85 italic">
-                  “Don&apos;t just carry the title. Prepare for the responsibility.”
-                </p>
-              </Reveal>
+        <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20 lg:px-10">
+          <Reveal>
+            <ApplicationWizard />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 border border-white/10 bg-white/[0.02] px-6 py-5 sm:flex-row">
+              <p className="text-sm text-ink-100/65">
+                Already applied? Follow your reference from submission to decision.
+              </p>
+              <Link
+                href="/track"
+                className="group inline-flex shrink-0 items-center gap-2 border border-gold-500/60 px-6 py-3 font-mono text-[0.65rem] tracking-[0.22em] text-gold-300 uppercase transition-all hover:bg-gold-500 hover:text-ink-950"
+              >
+                <FileSearch className="h-4 w-4" aria-hidden="true" />
+                Track Application
+              </Link>
             </div>
-          </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-ink-900" aria-labelledby="journey">
+        <div className="mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-10">
+          <SectionHeading
+            index="01"
+            kicker="After You Apply"
+            title="From application to portal."
+            align="center"
+          />
+          <ol className="mt-12 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+            {journey.map((stage, i) => (
+              <Reveal key={stage.title} delay={i * 0.06}>
+                <li className="h-full bg-ink-900 p-7">
+                  <p className="font-display text-4xl text-gold-500/80">{String(i + 1).padStart(2, "0")}</p>
+                  <h3 className="mt-4 font-display text-xl text-white">{stage.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-100/60">{stage.copy}</p>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
           <Reveal delay={0.1}>
-            <div className="border border-white/10 bg-white/[0.02] p-7 sm:p-10">
-              <SiteForm
-                id="Membership Application"
-                fields={fields}
-                submitLabel="Submit Application"
-                successTitle="Application received."
-                successCopy="Thank you for answering the call. The Corps reviews every application with care and will respond with next steps. Shielded by Faith, Sent to Serve."
-                note="By submitting, you confirm your interest in IPPSCC membership. Eligibility is determined under the organization's governing policies."
-              />
+            <div className="mt-10 text-center">
+              <Link
+                href="/portal/login"
+                className="group inline-flex items-center gap-2 font-mono text-[0.7rem] tracking-[0.24em] text-gold-300 uppercase"
+              >
+                <span className="link-sweep">Registered members — enter the portal</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+              </Link>
             </div>
           </Reveal>
         </div>

@@ -32,6 +32,10 @@ const pages: SearchEntry[] = [
   { title: "The IPPSCC Insight", section: "Gather", href: "/insights", keywords: "news articles blog essays insight read" },
   { title: "FAQ", section: "Organization", href: "/faq", keywords: "questions answers government police powers help" },
   { title: "Contact", section: "IPPSCC", href: "/contact", keywords: "contact email write message reach phone" },
+  { title: "Member Portal — Sign In", section: "Portal", href: "/portal/login", keywords: "login sign in dashboard account member area profile" },
+  { title: "Track Application", section: "Portal", href: "/track", keywords: "track reference status application progress check" },
+  { title: "Chaplain General — Prof. Presley Bethuel", section: "Leadership", href: "/leadership", keywords: "presley bethuel chaplain general leader office" },
+  { title: "Lieutenant General — Amb. Dr. Olatoyinbo Emmanuel", section: "Leadership", href: "/leadership", keywords: "olatoyinbo emmanuel lieutenant general deputy leader office" },
 ];
 
 const detailSlugs = new Set(["law-enforcement", "first-responder", "crisis-disaster", "wellness"]);
