@@ -23,7 +23,7 @@ export default function Crest({
         width={512}
         height={512}
         quality={100}
-        sizes="(max-width: 768px) 96px, 160px"
+        sizes="(max-width: 640px) 384px, 512px"
         priority={priority}
         className={`${className} w-auto object-contain [filter:drop-shadow(0_4px_22px_rgba(198,161,91,0.4))]`}
       />

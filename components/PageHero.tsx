@@ -76,12 +76,12 @@ export default function PageHero({ kicker, title, lede, image, imageAlt = "", im
                   {caption}
                 </span>
                 <span className="h-px flex-1 mx-4 bg-gold-500/40" aria-hidden="true" />
-                <Crest className="h-10 w-10 opacity-90" />
+                <Crest className="h-12 w-12 opacity-90" />
               </figcaption>
             </figure>
           ) : (
             <div className="flex aspect-[16/10] w-full flex-col justify-between border border-white/10 bg-ink-850/60 p-8 sm:aspect-[16/8] lg:aspect-[4/5]">
-              <Crest className="h-24 w-24" />
+              <Crest className="h-32 w-32" />
               <div>
                 <p className="font-display text-2xl leading-snug text-white/90 italic">
                   “Shielded by Faith,

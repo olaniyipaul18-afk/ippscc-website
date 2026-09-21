@@ -12,7 +12,7 @@ export default function SiteFooter() {
       {/* Upper footer */}
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_2fr] lg:px-10 lg:py-20">
         <div>
-          <Crest withWordmark className="h-16 w-16" />
+          <Crest withWordmark className="h-24 w-24" />
           <p className="mt-6 max-w-sm font-display text-xl leading-snug text-white/90 italic">
             “To serve those who serve — wherever duty calls.”
           </p>

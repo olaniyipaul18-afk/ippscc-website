@@ -5,6 +5,7 @@ import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import CTASection from "@/components/CTASection";
+import SealShowcase from "@/components/SealShowcase";
 import { values } from "@/data/values";
 
 export const metadata: Metadata = {
@@ -44,6 +45,8 @@ export default function AboutPage() {
         caption="Our Cadet"
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
+
+      <SealShowcase />
 
       {/* Conviction */}
       <section className="bg-ink-950">

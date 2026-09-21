@@ -29,7 +29,7 @@ export default function CTASection({
       </div>
       <div className="relative mx-auto max-w-5xl px-6 py-24 text-center sm:py-28 lg:px-10">
         <Reveal>
-          <Crest className="mx-auto h-20 w-20" />
+          <Crest className="mx-auto h-28 w-28" />
         </Reveal>
         <Reveal delay={0.08}>
           <p className="mt-8 font-mono text-[0.7rem] tracking-[0.3em] text-gold-400 uppercase">{kicker}</p>

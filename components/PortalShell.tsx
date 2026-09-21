@@ -68,7 +68,7 @@ export default function PortalShell({ member, children }: PortalShellProps) {
         <aside className="lg:sticky lg:top-36 lg:self-start">
           <div className="border border-white/10 bg-white/[0.02] p-5">
             <div className="flex items-center gap-3">
-              <Crest className="h-12 w-12" />
+              <Crest className="h-14 w-14" />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-white">{member.name}</p>
                 <p className="truncate font-mono text-[0.62rem] tracking-[0.14em] text-gold-400 uppercase">
