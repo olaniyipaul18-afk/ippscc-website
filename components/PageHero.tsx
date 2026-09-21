@@ -11,11 +11,13 @@ type PageHeroProps = {
   imageAlt?: string;
   /** object-position for the hero image, e.g. "object-top" for portraits with key detail up high */
   imagePosition?: string;
+  /** caption shown on the hero image figure */
+  caption?: string;
   breadcrumb: { label: string; href?: string }[];
 };
 
 /** Interior page hero — editorial masthead with optional art-directed image. */
-export default function PageHero({ kicker, title, lede, image, imageAlt = "", imagePosition = "object-center", breadcrumb }: PageHeroProps) {
+export default function PageHero({ kicker, title, lede, image, imageAlt = "", imagePosition = "object-center", caption = "IPPSCC — USA", breadcrumb }: PageHeroProps) {
   return (
     <section className="grain relative overflow-hidden border-b border-white/10 bg-ink-900">
       {/* Ambient backdrop */}
@@ -71,7 +73,7 @@ export default function PageHero({ kicker, title, lede, image, imageAlt = "", im
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-transparent" />
               <figcaption className="absolute bottom-0 left-0 flex w-full items-center justify-between px-5 py-4">
                 <span className="font-mono text-[0.65rem] tracking-[0.24em] text-gold-300 uppercase">
-                  IPPSCC — USA
+                  {caption}
                 </span>
                 <span className="h-px flex-1 mx-4 bg-gold-500/40" aria-hidden="true" />
                 <Crest className="h-10 w-10 opacity-90" />

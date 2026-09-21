@@ -41,6 +41,7 @@ export default function AboutPage() {
         image="/images/about-honor-guard.jpg"
         imageAlt="IPPSCC honor guard in dress uniform standing before the Corps seal, flanked by the Nigerian and American flags"
         imagePosition="object-top"
+        caption="Our Cadet"
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
 
