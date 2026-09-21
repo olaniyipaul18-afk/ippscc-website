@@ -9,7 +9,9 @@ export const site = {
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
     "https://ippscc.org",
   email:
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL || "info@ippscc.org",
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL || "admin@ippscc.org",
+  phone: "+234 906 993 7052",
+  phoneHref: "tel:+2349069937052",
   formEndpoint: process.env.NEXT_PUBLIC_FORM_ENDPOINT || "",
 } as const;
 

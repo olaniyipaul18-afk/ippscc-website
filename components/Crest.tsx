@@ -8,9 +8,9 @@ type CrestProps = {
   priority?: boolean;
 };
 
-/** The official IPPSCC seal, rendered with its transparent ground. */
+/** The official IPPSCC seal, rendered large and razor-sharp from the master artwork. */
 export default function Crest({
-  className = "h-11 w-11",
+  className = "h-12 w-12",
   withWordmark = false,
   wordmarkClassName = "",
   priority = false,
@@ -20,17 +20,19 @@ export default function Crest({
       <Image
         src="/images/ippscc-seal.png"
         alt="Official seal of the International Police & Public Safety Chaplain Corps, USA"
-        width={256}
-        height={256}
+        width={512}
+        height={512}
+        quality={100}
+        sizes="(max-width: 768px) 96px, 160px"
         priority={priority}
-        className={`${className} w-auto object-contain [filter:drop-shadow(0_4px_18px_rgba(198,161,91,0.25))]`}
+        className={`${className} w-auto object-contain [filter:drop-shadow(0_4px_22px_rgba(198,161,91,0.4))]`}
       />
       {withWordmark && (
         <span className="flex flex-col leading-none">
-          <span className="font-display text-[1.35rem] font-semibold tracking-wide text-white">
+          <span className="font-display text-[1.45rem] font-semibold tracking-wide text-white">
             IPPSCC
           </span>
-          <span className="mt-1 max-w-44 font-mono text-[0.58rem] tracking-[0.14em] text-gold-300/90 uppercase">
+          <span className="mt-1 max-w-48 font-mono text-[0.6rem] tracking-[0.14em] text-gold-300/90 uppercase">
             Intl. Police &amp; Public Safety Chaplain Corps
           </span>
         </span>

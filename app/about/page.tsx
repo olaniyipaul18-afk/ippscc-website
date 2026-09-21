@@ -38,8 +38,9 @@ export default function AboutPage() {
         kicker="About IPPSCC"
         title="More than a title. A calling to serve."
         lede="The International Police & Public Safety Chaplain Corps, USA is an internationally minded professional chaplaincy organization dedicated to serving those who serve in law enforcement, public safety and first-response environments."
-        image="/images/chaplains-united.jpg"
-        imageAlt="Diverse IPPSCC chaplains standing united in dress uniform"
+        image="/images/about-honor-guard.jpg"
+        imageAlt="IPPSCC honor guard in dress uniform standing before the Corps seal, flanked by the Nigerian and American flags"
+        imagePosition="object-top"
         breadcrumb={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
 

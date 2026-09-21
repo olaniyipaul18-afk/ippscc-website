@@ -9,11 +9,13 @@ type PageHeroProps = {
   lede?: string;
   image?: string;
   imageAlt?: string;
+  /** object-position for the hero image, e.g. "object-top" for portraits with key detail up high */
+  imagePosition?: string;
   breadcrumb: { label: string; href?: string }[];
 };
 
 /** Interior page hero — editorial masthead with optional art-directed image. */
-export default function PageHero({ kicker, title, lede, image, imageAlt = "", breadcrumb }: PageHeroProps) {
+export default function PageHero({ kicker, title, lede, image, imageAlt = "", imagePosition = "object-center", breadcrumb }: PageHeroProps) {
   return (
     <section className="grain relative overflow-hidden border-b border-white/10 bg-ink-900">
       {/* Ambient backdrop */}
@@ -54,15 +56,16 @@ export default function PageHero({ kicker, title, lede, image, imageAlt = "", br
           )}
         </div>
 
-        <div className="relative hidden lg:block">
+        <div className="relative">
           {image ? (
             <figure className="relative overflow-hidden border border-white/10">
               <Image
                 src={image}
                 alt={imageAlt}
-                width={800}
-                height={1000}
-                className="aspect-[4/5] w-full object-cover"
+                width={1200}
+                height={1200}
+                sizes="(max-width: 1024px) 100vw, 480px"
+                className={`aspect-[16/10] w-full object-cover sm:aspect-[16/8] lg:aspect-[4/5] ${imagePosition}`}
                 priority={false}
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-transparent" />
@@ -71,12 +74,12 @@ export default function PageHero({ kicker, title, lede, image, imageAlt = "", br
                   IPPSCC — USA
                 </span>
                 <span className="h-px flex-1 mx-4 bg-gold-500/40" aria-hidden="true" />
-                <Crest className="h-8 w-8 opacity-90" />
+                <Crest className="h-10 w-10 opacity-90" />
               </figcaption>
             </figure>
           ) : (
-            <div className="flex aspect-[4/5] w-full flex-col justify-between border border-white/10 bg-ink-850/60 p-8">
-              <Crest className="h-20 w-20" />
+            <div className="flex aspect-[16/10] w-full flex-col justify-between border border-white/10 bg-ink-850/60 p-8 sm:aspect-[16/8] lg:aspect-[4/5]">
+              <Crest className="h-24 w-24" />
               <div>
                 <p className="font-display text-2xl leading-snug text-white/90 italic">
                   “Shielded by Faith,

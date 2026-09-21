@@ -9,7 +9,7 @@ export default function NotFound() {
         <div className="absolute top-1/2 left-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-600/30 blur-[160px]" />
       </div>
       <div className="relative mx-auto max-w-3xl px-6 py-32 text-center lg:px-10">
-        <Crest className="mx-auto h-16 w-16 opacity-80" />
+        <Crest className="mx-auto h-20 w-20 opacity-90" />
         <p className="mt-8 font-mono text-[0.7rem] tracking-[0.32em] text-gold-400 uppercase">
           Error 404 — Off the Patrol Route
         </p>

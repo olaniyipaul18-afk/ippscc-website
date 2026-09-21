@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Building2, Globe2, Mail, UserRound } from "lucide-react";
+import { Building2, Globe2, Mail, Phone, UserRound } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -115,6 +115,20 @@ export default function ContactPage() {
                         Direct Email
                       </span>
                       <span className="mt-1 block text-[0.95rem] text-white">{site.email}</span>
+                    </span>
+                  </a>
+                </Reveal>
+                <Reveal delay={0.14}>
+                  <a
+                    href={site.phoneHref}
+                    className="mt-4 flex items-center gap-4 border border-white/10 bg-white/[0.02] px-6 py-5 transition-colors duration-300 hover:border-gold-500/50"
+                  >
+                    <Phone className="h-5 w-5 shrink-0 text-gold-400" aria-hidden="true" />
+                    <span>
+                      <span className="block font-mono text-[0.6rem] tracking-[0.26em] text-ink-100/50 uppercase">
+                        Direct Line
+                      </span>
+                      <span className="mt-1 block text-[0.95rem] text-white">{site.phone}</span>
                     </span>
                   </a>
                 </Reveal>

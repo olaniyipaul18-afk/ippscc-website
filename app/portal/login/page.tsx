@@ -17,7 +17,7 @@ export default function PortalLoginPage() {
       <div className="relative mx-auto max-w-md px-6 pt-40 pb-24 sm:pt-44">
         <Reveal>
           <div className="text-center">
-            <Crest className="mx-auto h-16 w-16" />
+            <Crest className="mx-auto h-20 w-20" />
             <p className="mt-6 font-mono text-[0.68rem] tracking-[0.3em] text-gold-400 uppercase">
               Member Portal
             </p>

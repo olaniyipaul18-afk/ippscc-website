@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Mail, ShieldAlert } from "lucide-react";
+import { ArrowUpRight, Mail, Phone, ShieldAlert } from "lucide-react";
 import Crest from "./Crest";
 import { footerNav } from "@/data/navigation";
 import { site, legalDisclaimers } from "@/lib/site";
@@ -12,7 +12,7 @@ export default function SiteFooter() {
       {/* Upper footer */}
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_2fr] lg:px-10 lg:py-20">
         <div>
-          <Crest withWordmark className="h-14 w-14" />
+          <Crest withWordmark className="h-16 w-16" />
           <p className="mt-6 max-w-sm font-display text-xl leading-snug text-white/90 italic">
             “To serve those who serve — wherever duty calls.”
           </p>
@@ -26,6 +26,13 @@ export default function SiteFooter() {
           >
             <Mail className="h-4 w-4" aria-hidden="true" />
             {site.email}
+          </a>
+          <a
+            href={site.phoneHref}
+            className="mt-3 inline-flex items-center gap-2 border border-white/15 px-5 py-3 font-mono text-[0.7rem] tracking-[0.18em] text-white uppercase transition-colors hover:border-gold-400 hover:text-gold-300"
+          >
+            <Phone className="h-4 w-4" aria-hidden="true" />
+            {site.phone}
           </a>
         </div>
 

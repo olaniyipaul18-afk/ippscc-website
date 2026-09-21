@@ -99,7 +99,7 @@ export default function SiteHeader() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-10">
           <Link href="/" className="group flex items-center" aria-label="IPPSCC — home">
-            <Crest withWordmark priority className="h-12 w-12 transition-transform duration-500 group-hover:scale-[1.04]" />
+            <Crest withWordmark priority className="h-14 w-14 transition-transform duration-500 group-hover:scale-[1.04]" />
           </Link>
 
           {/* Desktop nav */}

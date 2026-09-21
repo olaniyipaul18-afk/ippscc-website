@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BackToTop from "@/components/BackToTop";
+import Chatbot from "@/components/Chatbot";
 import JsonLd from "@/components/JsonLd";
 import { site } from "@/lib/site";
 
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main-content">{children}</main>
         <SiteFooter />
         <BackToTop />
+        <Chatbot />
       </body>
     </html>
   );
