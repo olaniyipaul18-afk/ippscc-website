@@ -36,6 +36,7 @@ const pages: SearchEntry[] = [
   { title: "Track Application", section: "Portal", href: "/track", keywords: "track reference status application progress check" },
   { title: "Chaplain General — Prof. Presley Bethuel", section: "Leadership", href: "/leadership", keywords: "presley bethuel chaplain general leader office" },
   { title: "Lieutenant General — Amb. Dr. Olatoyinbo Emmanuel", section: "Leadership", href: "/leadership", keywords: "olatoyinbo emmanuel lieutenant general deputy leader office" },
+  { title: "CIPC Partnership", section: "Partnerships", href: "/cipc", keywords: "cipc chartered institute professional chaplains certification partnership" },
 ];
 
 const detailSlugs = new Set(["law-enforcement", "first-responder", "crisis-disaster", "wellness"]);

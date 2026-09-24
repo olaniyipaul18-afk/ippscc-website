@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight } from "lucide-react";
 import Crest from "./Crest";
 
 type PageHeroProps = {
@@ -13,11 +13,13 @@ type PageHeroProps = {
   imagePosition?: string;
   /** caption shown on the hero image figure */
   caption?: string;
+  /** optional call-to-action button under the lede */
+  cta?: { label: string; href: string; external?: boolean };
   breadcrumb: { label: string; href?: string }[];
 };
 
 /** Interior page hero — editorial masthead with optional art-directed image. */
-export default function PageHero({ kicker, title, lede, image, imageAlt = "", imagePosition = "object-center", caption = "IPPSCC — USA", breadcrumb }: PageHeroProps) {
+export default function PageHero({ kicker, title, lede, image, imageAlt = "", imagePosition = "object-center", caption = "IPPSCC — USA", cta, breadcrumb }: PageHeroProps) {
   return (
     <section className="grain relative overflow-hidden border-b border-white/10 bg-ink-900">
       {/* Ambient backdrop */}
@@ -55,6 +57,29 @@ export default function PageHero({ kicker, title, lede, image, imageAlt = "", im
           </h1>
           {lede && (
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink-100/75 sm:text-lg">{lede}</p>
+          )}
+          {cta && (
+            <div className="mt-8">
+              {cta.external ? (
+                <a
+                  href={cta.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 bg-gold-500 px-8 py-4 font-mono text-[0.68rem] tracking-[0.24em] text-ink-950 uppercase transition-colors hover:bg-gold-400"
+                >
+                  {cta.label}
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </a>
+              ) : (
+                <Link
+                  href={cta.href}
+                  className="group inline-flex items-center gap-2 bg-gold-500 px-8 py-4 font-mono text-[0.68rem] tracking-[0.24em] text-ink-950 uppercase transition-colors hover:bg-gold-400"
+                >
+                  {cta.label}
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+                </Link>
+              )}
+            </div>
           )}
         </div>
 

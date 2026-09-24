@@ -145,6 +145,14 @@ const curated: ChatEntry[] = [
     linkLabel: "See requirements & apply",
     keywords: ["eligible", "requirement", "criteria", "who can", "qualify", "referee", "pastor", "officer", "recommend"],
   },
+  {
+    id: "cipc",
+    answer:
+      "IPPSCC is proud to partner with the Chartered Institute of Professional Chaplains (CIPC), USA — a professional body devoted to chaplaincy training, certification and a global professional network. Both organizations remain fully independent.",
+    href: "/cipc",
+    linkLabel: "CIPC Partnership",
+    keywords: ["cipc", "chartered", "certified", "certification", "institute", "professional chaplain"],
+  },
 ];
 
 /* ——— FAQs become searchable entries ——— */

@@ -14,6 +14,7 @@ export const primaryNav: NavItem[] = [
       { label: "About IPPSCC", href: "/about", description: "Mission, vision, motto & values" },
       { label: "Leadership & Governance", href: "/leadership", description: "Servant leadership, professional responsibility" },
       { label: "Partnerships", href: "/partnerships", description: "Responsible collaboration" },
+      { label: "CIPC Partnership", href: "/cipc", description: "IPPSCC × CIPC — advancing professional chaplaincy" },
       { label: "FAQ", href: "/faq", description: "Questions, answered plainly" },
     ],
   },
@@ -67,6 +68,7 @@ export const footerNav: { title: string; links: NavChild[] }[] = [
       { label: "Training & Development", href: "/training" },
       { label: "Professional Standards", href: "/standards" },
       { label: "Partnerships", href: "/partnerships" },
+      { label: "CIPC Partnership", href: "/cipc" },
     ],
   },
   {
