@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   TriangleAlert,
   Users,
+  Vote,
 } from "lucide-react";
 
 type AdminShellProps = {
@@ -24,6 +25,7 @@ const NAV = [
   { href: "/admin/applications", label: "Applications", icon: FileText },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/notifications", label: "Broadcast", icon: Megaphone },
+  { href: "/admin/votes", label: "Award Votes", icon: Vote },
   { href: "/", label: "Website", icon: Globe },
 ];
 

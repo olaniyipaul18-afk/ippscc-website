@@ -35,8 +35,6 @@ export default function LeadershipPage() {
         kicker="Leadership & Governance"
         title="Servant leadership. Professional responsibility."
         lede="Leadership within IPPSCC is understood not simply as authority, but as responsibility — the duty to shepherd chaplains and safeguard the trust placed in the Corps."
-        image="/images/formation-dawn.jpg"
-        imageAlt="Service members in formation at dawn with a chaplain alongside"
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Leadership" }]}
       />
 

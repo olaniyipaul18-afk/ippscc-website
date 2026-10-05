@@ -153,6 +153,14 @@ const curated: ChatEntry[] = [
     linkLabel: "CIPC Partnership",
     keywords: ["cipc", "chartered", "certified", "certification", "institute", "professional chaplain"],
   },
+  {
+    id: "awards",
+    answer:
+      "The Light in the Line of Duty 2026 Award & Goodwill Ambassadors Honour holds on 21st November 2026 at Oriental Hotel, Lagos. Seven categories, three finalists each — one public vote per category decides the winners.",
+    href: "/events/awards-2026",
+    linkLabel: "Vote for nominees",
+    keywords: ["award", "vote", "voting", "nominee", "nominate", "nomination", "honour", "honor", "goodwill", "ambassador", "trophy", "winner"],
+  },
 ];
 
 /* ——— FAQs become searchable entries ——— */

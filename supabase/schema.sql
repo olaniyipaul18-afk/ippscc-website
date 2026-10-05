@@ -60,3 +60,17 @@ create table if not exists admins (
 --
 -- insert into admins (id, email, name, password_hash)
 -- values ('adm_1', 'admin@ippscc.org', 'Corps Administrator', 'PASTE_HASH_HERE');
+
+-- ── Awards voting ──────────────────────────────────────────────────
+-- One row per vote. The unique constraint enforces one vote per
+-- category per voter (voters are identified by a random browser cookie).
+create table if not exists award_votes (
+  id uuid primary key default gen_random_uuid(),
+  category_id text not null,
+  nominee_id text not null,
+  voter_key text not null,
+  created_at timestamptz not null default now(),
+  unique (category_id, voter_key)
+);
+create index if not exists award_votes_category_idx on award_votes (category_id);
+create index if not exists award_votes_nominee_idx on award_votes (nominee_id);
