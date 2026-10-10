@@ -12,6 +12,16 @@ export default function JsonLd() {
     slogan: site.motto,
     description: site.description,
     email: site.email,
+    telephone: site.phone,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "444 Alaska Avenue, Suite #CIN848",
+      addressLocality: "Torrance",
+      addressRegion: "CA",
+      postalCode: "90503",
+      addressCountry: "US",
+    },
+    identifier: `Charter No. ${site.charterNumber}`,
   };
 
   const website = {

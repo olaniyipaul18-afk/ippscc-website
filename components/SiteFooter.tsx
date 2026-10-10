@@ -34,6 +34,14 @@ export default function SiteFooter() {
             <Phone className="h-4 w-4" aria-hidden="true" />
             {site.phone}
           </a>
+          <p className="mt-5 max-w-sm text-xs leading-relaxed text-ink-100/50">
+            {site.addressLines[0]}
+            <br />
+            {site.addressLines[1]}
+          </p>
+          <p className="mt-2 font-mono text-[0.62rem] tracking-[0.2em] text-gold-500/80 uppercase">
+            Charter No. {site.charterNumber}
+          </p>
         </div>
 
         <div className="grid gap-10 sm:grid-cols-3">

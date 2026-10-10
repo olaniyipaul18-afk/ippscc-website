@@ -12,6 +12,8 @@ export const site = {
     process.env.NEXT_PUBLIC_CONTACT_EMAIL || "admin@ippscc.org",
   phone: "+234 906 993 7052",
   phoneHref: "tel:+2349069937052",
+  addressLines: ["444 Alaska Avenue, Suite #CIN848", "Torrance, CA 90503, USA"],
+  charterNumber: "N001706766",
   formEndpoint: process.env.NEXT_PUBLIC_FORM_ENDPOINT || "",
 } as const;
 

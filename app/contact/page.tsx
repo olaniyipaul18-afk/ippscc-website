@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Building2, Globe2, Mail, Phone, UserRound } from "lucide-react";
+import { Building2, Globe2, Mail, MapPin, Phone, UserRound } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -131,6 +131,24 @@ export default function ContactPage() {
                       <span className="mt-1 block text-[0.95rem] text-white">{site.phone}</span>
                     </span>
                   </a>
+                </Reveal>
+                <Reveal delay={0.15}>
+                  <div className="mt-4 flex items-start gap-4 border border-white/10 bg-white/[0.02] px-6 py-5">
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-gold-400" aria-hidden="true" />
+                    <span>
+                      <span className="block font-mono text-[0.6rem] tracking-[0.26em] text-ink-100/50 uppercase">
+                        Official Address
+                      </span>
+                      <span className="mt-1 block text-[0.95rem] leading-relaxed text-white">
+                        {site.addressLines[0]}
+                        <br />
+                        {site.addressLines[1]}
+                      </span>
+                      <span className="mt-2 block font-mono text-[0.62rem] tracking-[0.2em] text-gold-400/90 uppercase">
+                        Charter No. {site.charterNumber}
+                      </span>
+                    </span>
+                  </div>
                 </Reveal>
                 <Reveal delay={0.16}>
                   <p className="mt-6 border-l-2 border-crimson-500 pl-4 text-xs leading-relaxed text-ink-100/60">
