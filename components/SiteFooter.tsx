@@ -39,9 +39,6 @@ export default function SiteFooter() {
             <br />
             {site.addressLines[1]}
           </p>
-          <p className="mt-2 font-mono text-[0.62rem] tracking-[0.2em] text-gold-500/80 uppercase">
-            Charter No. {site.charterNumber}
-          </p>
         </div>
 
         <div className="grid gap-10 sm:grid-cols-3">

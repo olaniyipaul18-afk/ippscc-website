@@ -1,9 +1,12 @@
 import Image from "next/image";
+import { site } from "@/lib/site";
 
 type CrestProps = {
   className?: string;
   /** Render the wordmark beside the seal */
   withWordmark?: boolean;
+  /** Render the charter number beneath the wordmark */
+  withCharter?: boolean;
   wordmarkClassName?: string;
   priority?: boolean;
 };
@@ -12,6 +15,7 @@ type CrestProps = {
 export default function Crest({
   className = "h-12 w-12",
   withWordmark = false,
+  withCharter = false,
   wordmarkClassName = "",
   priority = false,
 }: CrestProps) {
@@ -35,6 +39,11 @@ export default function Crest({
           <span className="mt-1 max-w-48 font-mono text-[0.6rem] tracking-[0.14em] text-gold-300/90 uppercase">
             Intl. Police &amp; Public Safety Chaplain Corps
           </span>
+          {withCharter && (
+            <span className="mt-1 font-mono text-[0.55rem] tracking-[0.18em] whitespace-nowrap text-gold-500/90 uppercase">
+              Charter No. {site.charterNumber}
+            </span>
+          )}
         </span>
       )}
     </span>
