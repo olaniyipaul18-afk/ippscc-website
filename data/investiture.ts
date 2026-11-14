@@ -12,8 +12,7 @@ export const INVESTITURE_EVENT = {
     "A landmark international gathering celebrating distinguished leadership, public safety, humanitarian service, and the formal investiture of IPPSCC-USA Distinguished Fellows.",
   route: "/events/investiture-2026",
   contactEmail: "admin@ippscc.org",
-  participationContribution: "₦300,000",
-  participationDeadline: "9 November 2026",
+  participationContribution: "₦500,000",
 } as const;
 
 export type InvestitureNominee = {

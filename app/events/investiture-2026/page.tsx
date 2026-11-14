@@ -204,7 +204,7 @@ export default function Investiture2026Page() {
                 index="05"
                 kicker="Programme Participation"
                 title="Plan ahead for the investiture."
-                lede="The attached programme brochure lists a participation contribution of ₦300,000, with a payment deadline of 9 November 2026."
+                lede="The programme participation contribution is ₦500,000."
               />
               <Reveal delay={0.12}>
                 <p className="mt-6 max-w-2xl text-sm leading-relaxed text-ink-100/65">
@@ -223,14 +223,11 @@ export default function Investiture2026Page() {
                   </span>
                   <div>
                     <p className="font-mono text-[0.6rem] tracking-[0.24em] text-ink-100/50 uppercase">
-                      Contribution in brochure
+                      Programme participation contribution
                     </p>
                     <p className="mt-1 font-display text-3xl text-white">{INVESTITURE_EVENT.participationContribution}</p>
                   </div>
                 </div>
-                <p className="mt-6 border-t border-white/10 pt-5 font-mono text-xs tracking-[0.1em] text-gold-300/80">
-                  PAYMENT DEADLINE · {INVESTITURE_EVENT.participationDeadline}
-                </p>
                 <a
                   href={`mailto:${site.email}`}
                   className="mt-7 inline-flex items-center gap-2 border border-white/20 px-5 py-3 font-mono text-[0.65rem] tracking-[0.18em] text-white uppercase transition-colors hover:border-gold-400 hover:text-gold-300"
