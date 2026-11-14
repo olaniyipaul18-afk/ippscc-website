@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -8,6 +9,7 @@ import CTASection from "@/components/CTASection";
 import ArticleCard from "@/components/ArticleCard";
 import NewsletterForm from "@/components/NewsletterForm";
 import { articles } from "@/data/articles";
+import { INVESTITURE_EVENT, INVESTITURE_NOMINEES } from "@/data/investiture";
 
 export const metadata: Metadata = {
   title: "The IPPSCC Insight — Ideas for Those Who Serve",
@@ -42,6 +44,60 @@ export default function InsightsPage() {
         lede="An authoritative knowledge platform for professional chaplaincy — ideas for those who serve, insight for those called to support them."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Insights" }]}
       />
+
+      {/* Featured upcoming event */}
+      <section className="border-b border-gold-500/25 bg-ink-900" aria-labelledby="insight-investiture">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 py-12 sm:py-14 lg:grid-cols-[220px_1fr] lg:gap-12 lg:px-10">
+          <Reveal>
+            <Link href={INVESTITURE_EVENT.route} aria-label={`Event details: ${INVESTITURE_EVENT.title}`}>
+              <Image
+                src={INVESTITURE_NOMINEES[0].image}
+                alt={INVESTITURE_NOMINEES[0].alt}
+                width={1254}
+                height={1254}
+                sizes="(max-width: 1024px) 100vw, 220px"
+                className="aspect-square w-full border border-gold-500/30 bg-ink-950 object-contain"
+              />
+            </Link>
+          </Reveal>
+          <div>
+            <Reveal>
+              <p className="font-mono text-[0.65rem] tracking-[0.26em] text-gold-400 uppercase">
+                Upcoming Event
+              </p>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <h2 id="insight-investiture" className="balance mt-3 font-display text-3xl leading-tight text-white sm:text-4xl">
+                IPPSCC-USA {INVESTITURE_EVENT.shortTitle}
+              </h2>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[0.62rem] tracking-[0.12em] text-gold-300/80">
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                  {INVESTITURE_EVENT.date}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                  {INVESTITURE_EVENT.venue}
+                </span>
+              </p>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-100/65">
+                {INVESTITURE_EVENT.theme} Explore the event programme and official nominee postcard gallery.
+              </p>
+              <Link
+                href={INVESTITURE_EVENT.route}
+                className="group mt-5 inline-flex items-center gap-2 font-mono text-[0.65rem] tracking-[0.2em] text-gold-300 uppercase"
+              >
+                Event details & nominee postcards
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       {/* Featured essay */}
       <section className="bg-ink-950">

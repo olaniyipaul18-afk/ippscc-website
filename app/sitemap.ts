@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/nigeria",
     "/partnerships",
     "/events",
+    "/events/investiture-2026",
     "/insights",
     "/faq",
     "/join",

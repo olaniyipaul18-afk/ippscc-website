@@ -37,7 +37,7 @@ const pages: SearchEntry[] = [
   { title: "Chaplain General — Prof. Presley Bethuel", section: "Leadership", href: "/leadership", keywords: "presley bethuel chaplain general leader office" },
   { title: "Lieutenant General — Amb. Dr. Olatoyinbo Emmanuel", section: "Leadership", href: "/leadership", keywords: "olatoyinbo emmanuel lieutenant general deputy leader office" },
   { title: "CIPC Partnership", section: "Partnerships", href: "/cipc", keywords: "cipc chartered institute professional chaplains certification partnership" },
-  { title: "2026 Award & Goodwill Ambassadors Honour — Vote", section: "Events", href: "/events/awards-2026", keywords: "award vote voting nominee nomination honour honor goodwill ambassador 2026 lagos" },
+  { title: "Maiden International Honours & Distinguished Fellowship Investiture 2026", section: "Events", href: "/events/investiture-2026", keywords: "investiture distinguished fellowship honours honour nominee postcard 2026 november 23 lagos public safety leadership humanitarian outreach" },
 ];
 
 const detailSlugs = new Set(["law-enforcement", "first-responder", "crisis-disaster", "wellness"]);

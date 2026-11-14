@@ -154,12 +154,12 @@ const curated: ChatEntry[] = [
     keywords: ["cipc", "chartered", "certified", "certification", "institute", "professional chaplain"],
   },
   {
-    id: "awards",
+    id: "investiture",
     answer:
-      "The Light in the Line of Duty 2026 Award & Goodwill Ambassadors Honour holds on 21st November 2026 at Oriental Hotel, Lagos. Seven categories, three finalists each — one public vote per category decides the winners.",
-    href: "/events/awards-2026",
-    linkLabel: "Vote for nominees",
-    keywords: ["award", "vote", "voting", "nominee", "nominate", "nomination", "honour", "honor", "goodwill", "ambassador", "trophy", "winner"],
+      "The IPPSCC-USA Maiden International Honours & Distinguished Fellowship Investiture is on Monday, 23 November 2026 at Oriental Hotel, Victoria Island, Lagos. The programme includes humanitarian outreach, a formal Distinguished Fellowship investiture, professional networking, and a gallery of official nominee postcards. There is no public voting.",
+    href: "/events/investiture-2026",
+    linkLabel: "View event details and nominee postcards",
+    keywords: ["investiture", "distinguished fellowship", "honours", "honor", "nominee", "postcard", "23 november", "humanitarian outreach", "event", "fellowship"],
   },
 ];
 
