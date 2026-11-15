@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
@@ -9,7 +8,7 @@ import CTASection from "@/components/CTASection";
 import ArticleCard from "@/components/ArticleCard";
 import NewsletterForm from "@/components/NewsletterForm";
 import { articles } from "@/data/articles";
-import { INVESTITURE_EVENT, INVESTITURE_NOMINEES } from "@/data/investiture";
+import { INVESTITURE_EVENT } from "@/data/investiture";
 
 export const metadata: Metadata = {
   title: "The IPPSCC Insight — Ideas for Those Who Serve",
@@ -47,19 +46,7 @@ export default function InsightsPage() {
 
       {/* Featured upcoming event */}
       <section className="border-b border-gold-500/25 bg-ink-900" aria-labelledby="insight-investiture">
-        <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 py-12 sm:py-14 lg:grid-cols-[220px_1fr] lg:gap-12 lg:px-10">
-          <Reveal>
-            <Link href={INVESTITURE_EVENT.route} aria-label={`Event details: ${INVESTITURE_EVENT.title}`}>
-              <Image
-                src={INVESTITURE_NOMINEES[0].image}
-                alt={INVESTITURE_NOMINEES[0].alt}
-                width={1254}
-                height={1254}
-                sizes="(max-width: 1024px) 100vw, 220px"
-                className="aspect-square w-full border border-gold-500/30 bg-ink-950 object-contain"
-              />
-            </Link>
-          </Reveal>
+        <div className="mx-auto max-w-5xl px-6 py-12 sm:py-14 lg:px-10">
           <div>
             <Reveal>
               <p className="font-mono text-[0.65rem] tracking-[0.26em] text-gold-400 uppercase">

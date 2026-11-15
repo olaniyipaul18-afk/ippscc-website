@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import CTASection from "@/components/CTASection";
 import { eventFormats } from "@/data/events";
-import { INVESTITURE_EVENT, INVESTITURE_NOMINEES } from "@/data/investiture";
+import { INVESTITURE_EVENT } from "@/data/investiture";
 
 export const metadata: Metadata = {
   title: "Events & Conferences — Where Chaplains Connect, Learn & Grow",
@@ -29,19 +28,7 @@ export default function EventsPage() {
 
       {/* Upcoming Investiture spotlight */}
       <section className="border-b border-gold-500/25 bg-ink-900" aria-labelledby="upcoming-spotlight">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-[300px_1fr] lg:gap-14 lg:px-10">
-          <Reveal>
-            <Link href={INVESTITURE_EVENT.route} aria-label={`Event details: ${INVESTITURE_EVENT.title}`}>
-              <Image
-                src={INVESTITURE_NOMINEES[0].image}
-                alt={INVESTITURE_NOMINEES[0].alt}
-                width={1254}
-                height={1254}
-                sizes="(max-width: 1024px) 100vw, 300px"
-                className="aspect-square w-full border border-gold-500/40 bg-ink-950 object-contain transition-all duration-500 hover:border-gold-400"
-              />
-            </Link>
-          </Reveal>
+        <div className="mx-auto grid max-w-5xl items-center gap-10 px-6 py-16 sm:py-20 lg:px-10">
           <div>
             <Reveal>
               <p className="flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.65rem] tracking-[0.26em] text-gold-400 uppercase">
