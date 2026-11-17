@@ -87,6 +87,16 @@ Demo credentials (demo mode only, shown on the login screens):
    (generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`),
    then redeploy.
 
+### Temporary-password enforcement update
+
+For an existing Supabase installation, run `supabase/migrations/20260916_first_login_password_change.sql`
+from the SQL Editor before deploying the updated app. It adds the admin
+`must_change_password` flag and marks the initially provisioned admin account
+for a first-login password change. The updated app requires any member or admin
+with a temporary password (including member password resets) to change it before
+using protected portal features. Members can later change it under **Profile →
+Security**; admins can use **Security** in the admin navigation.
+
 Security notes: passwords are scrypt-hashed; sessions are HMAC-signed
 httpOnly cookies; the service-role key never leaves the server. For
 hardened deployments, consider migrating to Supabase Auth + Row Level

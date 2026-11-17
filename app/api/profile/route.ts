@@ -1,4 +1,4 @@
-import { hashPassword, requireSession, verifyPassword } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore } from "@/lib/store";
 
 const EDITABLE = [
@@ -8,7 +8,7 @@ const EDITABLE = [
 
 /** Member: own profile. */
 export async function GET() {
-  const gate = await requireSession("member");
+  const gate = await requirePasswordUpdatedSession("member");
   if ("error" in gate) return gate.error;
   const member = await getStore().getMember(gate.session.sub);
   if (!member) return Response.json({ error: "Account not found." }, { status: 404 });
@@ -16,11 +16,11 @@ export async function GET() {
 }
 
 /**
- * Member: update own profile. Supports JSON ({profile}, {action:'change-password'…})
- * and multipart photo upload ({action:'photo'} via FormData file, max 3MB).
+ * Member: update own profile (JSON {profile}) and multipart photo upload
+ * (FormData photo file, max 3MB). Password changes use /api/auth/change-password.
  */
 export async function PATCH(req: Request) {
-  const gate = await requireSession("member");
+  const gate = await requirePasswordUpdatedSession("member");
   if ("error" in gate) return gate.error;
   const store = getStore();
   const contentType = req.headers.get("content-type") || "";
@@ -56,26 +56,6 @@ export async function PATCH(req: Request) {
     body = await req.json();
   } catch {
     return Response.json({ error: "Invalid request." }, { status: 400 });
-  }
-
-  if (body.action === "change-password") {
-    const { current, next } = body as { current?: string; next?: string };
-    if (!current || !next || next.length < 8) {
-      return Response.json({ error: "Current password and a new password (8+ characters) are required." }, { status: 400 });
-    }
-    const member = await store.getMember(gate.session.sub);
-    if (!member) return Response.json({ error: "Account not found." }, { status: 404 });
-    // Verify against the stored hash via the store's verifier path.
-    const full = await store.getMemberByEmail(member.email);
-    if (!full) return Response.json({ error: "Account not found." }, { status: 404 });
-    const authed = await store.verifyMember(member.email, String(current));
-    if (!authed) return Response.json({ error: "Current password is incorrect." }, { status: 403 });
-    const updated = await store.updateMember(gate.session.sub, {
-      passwordHash: hashPassword(String(next)),
-      mustChangePassword: false,
-    });
-    void verifyPassword; // (re-export guard for bundlers)
-    return Response.json({ member: updated });
   }
 
   const incoming = (body.profile as Record<string, unknown>) || {};

@@ -48,7 +48,8 @@ export default function LoginForm({ role, redirectTo }: LoginFormProps) {
         setBusy(false);
         return;
       }
-      router.push(data.redirect || redirectTo);
+      const passwordPath = role === "admin" ? "/admin/change-password" : "/portal/change-password";
+      router.push(data.mustChangePassword ? passwordPath : data.redirect || redirectTo);
       router.refresh();
     } catch {
       setError("Could not reach the server. Please try again.");

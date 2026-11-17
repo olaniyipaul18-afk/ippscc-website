@@ -18,7 +18,12 @@ export async function POST(req: Request) {
     const admin = await store.verifyAdmin(String(email), String(password));
     if (!admin) return Response.json({ error: "Invalid administrator credentials." }, { status: 401 });
     await setSessionCookie(signSession({ sub: admin.id, role: "admin", name: admin.name }));
-    return Response.json({ ok: true, redirect: "/admin", name: admin.name });
+    return Response.json({
+      ok: true,
+      redirect: "/admin",
+      name: admin.name,
+      mustChangePassword: admin.mustChangePassword,
+    });
   }
 
   const member = await store.verifyMember(String(email), String(password));

@@ -59,7 +59,7 @@ export type NotificationItem = {
   readBy: string[];
 };
 
-export type AdminUser = { id: string; email: string; name: string; passwordHash: string };
+export type AdminUser = { id: string; email: string; name: string; passwordHash: string; mustChangePassword: boolean };
 
 export type Stats = {
   membersTotal: number;
@@ -73,6 +73,8 @@ export interface Store {
   mode: "demo" | "supabase";
   verifyMember(email: string, password: string): Promise<MemberPublic | null>;
   verifyAdmin(email: string, password: string): Promise<AdminUser | null>;
+  getAdmin(id: string): Promise<AdminUser | null>;
+  updateAdminPassword(id: string, passwordHash: string): Promise<AdminUser | null>;
   getMember(id: string): Promise<MemberPublic | null>;
   getMemberByEmail(email: string): Promise<MemberPublic | null>;
   listMembers(q?: string, status?: string): Promise<MemberPublic[]>;
@@ -114,6 +116,7 @@ class DemoStore implements Store {
       email: "admin@ippscc.org",
       name: "Corps Administrator",
       passwordHash: hashPassword("Admin123!"),
+      mustChangePassword: false,
     };
     this.admins.set(admin.id, admin);
 
@@ -209,6 +212,18 @@ class DemoStore implements Store {
     const a = [...this.admins.values()].find((x) => x.email.toLowerCase() === email.toLowerCase());
     if (!a) return null;
     return verifyPassword(password, a.passwordHash) ? a : null;
+  }
+
+  async getAdmin(id: string) {
+    return this.admins.get(id) || null;
+  }
+
+  async updateAdminPassword(id: string, passwordHash: string) {
+    const admin = this.admins.get(id);
+    if (!admin) return null;
+    const updated = { ...admin, passwordHash, mustChangePassword: false };
+    this.admins.set(id, updated);
+    return updated;
   }
 
   async getMember(id: string) {
@@ -367,7 +382,7 @@ type ApplicationRow = {
   status: ApplicationStatus; notes: ApplicationNote[]; created_at: string; updated_at: string;
 };
 type NotificationRow = { id: string; audience: string; title: string; body: string; created_at: string; read_by: string[] };
-type AdminRow = { id: string; email: string; name: string; password_hash: string };
+type AdminRow = { id: string; email: string; name: string; password_hash: string; must_change_password?: boolean };
 
 const toMember = (r: MemberRow): Member => ({
   id: r.id, memberId: r.member_id, email: r.email, name: r.name, title: r.title, rank: r.rank,
@@ -381,6 +396,10 @@ const toApplication = (r: ApplicationRow): Application => ({
 const toNotification = (r: NotificationRow): NotificationItem => ({
   id: r.id, audience: r.audience, title: r.title, body: r.body,
   createdAt: r.created_at, readBy: r.read_by || [],
+});
+const toAdmin = (r: AdminRow): AdminUser => ({
+  id: r.id, email: r.email, name: r.name, passwordHash: r.password_hash,
+  mustChangePassword: Boolean(r.must_change_password),
 });
 
 class SupabaseStore implements Store {
@@ -407,9 +426,22 @@ class SupabaseStore implements Store {
     const { data } = await this.db.from("admins").select("*").ilike("email", email).maybeSingle();
     if (!data) return null;
     const row = data as AdminRow;
-    return verifyPassword(password, row.password_hash)
-      ? { id: row.id, email: row.email, name: row.name, passwordHash: row.password_hash }
-      : null;
+    return verifyPassword(password, row.password_hash) ? toAdmin(row) : null;
+  }
+
+  async getAdmin(id: string) {
+    const { data } = await this.db.from("admins").select("*").eq("id", id).maybeSingle();
+    return data ? toAdmin(data as AdminRow) : null;
+  }
+
+  async updateAdminPassword(id: string, passwordHash: string) {
+    const { data } = await this.db
+      .from("admins")
+      .update({ password_hash: passwordHash, must_change_password: false })
+      .eq("id", id)
+      .select("*")
+      .maybeSingle();
+    return data ? toAdmin(data as AdminRow) : null;
   }
 
   async getMember(id: string) {

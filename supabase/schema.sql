@@ -50,7 +50,8 @@ create table if not exists admins (
   id text primary key,
   email text unique not null,
   name text not null,
-  password_hash text not null
+  password_hash text not null,
+  must_change_password boolean not null default true
 );
 
 -- ── Initial administrator ──────────────────────────────────────────
@@ -58,5 +59,5 @@ create table if not exists admins (
 --   node scripts/hash-password.mjs "Your-Strong-Password"
 -- then paste it below and run this insert (once):
 --
--- insert into admins (id, email, name, password_hash)
--- values ('adm_1', 'admin@ippscc.org', 'Corps Administrator', 'PASTE_HASH_HERE');
+-- insert into admins (id, email, name, password_hash, must_change_password)
+-- values ('adm_1', 'admin@ippscc.org', 'Corps Administrator', 'PASTE_HASH_HERE', true);

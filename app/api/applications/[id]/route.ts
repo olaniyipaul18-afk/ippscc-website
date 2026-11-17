@@ -1,4 +1,4 @@
-import { requireSession } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore, type ApplicationStatus } from "@/lib/store";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -14,7 +14,7 @@ const STATUSES: ApplicationStatus[] = [
 
 /** Admin: application detail. */
 export async function GET(_req: Request, { params }: Ctx) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const { id } = await params;
   const app = await getStore().getApplication(id);
@@ -27,7 +27,7 @@ export async function GET(_req: Request, { params }: Ctx) {
  * automatically provisions the member account and returns one-time credentials.
  */
 export async function PATCH(req: Request, { params }: Ctx) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const { id } = await params;
   const store = getStore();
@@ -59,7 +59,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       await store.createNotification(
         member.id,
         "Welcome to the Corps — your account is ready",
-        `Your membership has been approved. Member ID: ${member.memberId}. Sign in with the temporary password issued to you, then set your own password and complete your profile.`
+        `Your membership has been approved. Member ID: ${member.memberId}. Sign in with the temporary password issued to you; the portal will require you to set a new password before you continue and complete your profile.`
       );
       return Response.json({
         application: updated,

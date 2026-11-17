@@ -1,9 +1,9 @@
-import { getSession, requireSession } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore } from "@/lib/store";
 
 /** Member: own notifications + unread count. */
 export async function GET() {
-  const gate = await requireSession("member");
+  const gate = await requirePasswordUpdatedSession("member");
   if ("error" in gate) return gate.error;
   const list = await getStore().notificationsFor(gate.session.sub);
   const unread = list.filter((n) => !n.readBy.includes(gate.session.sub)).length;
@@ -12,7 +12,7 @@ export async function GET() {
 
 /** Member: mark read ({ids: string[] | "all"}). */
 export async function PATCH(req: Request) {
-  const gate = await requireSession("member");
+  const gate = await requirePasswordUpdatedSession("member");
   if ("error" in gate) return gate.error;
   let body: { ids?: string[] | "all" };
   try {
@@ -26,10 +26,9 @@ export async function PATCH(req: Request) {
 
 /** Admin: broadcast ({audience: "all" | memberId, title, body}). */
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "admin") {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requirePasswordUpdatedSession("admin");
+  if ("error" in gate) return gate.error;
+  const session = gate.session;
   let body: { audience?: string; title?: string; message?: string };
   try {
     body = await req.json();

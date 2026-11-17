@@ -109,7 +109,7 @@ export async function requireSession(
 }
 
 export function tempPassword(): string {
-  return `IPPSCC-${randomBytes(3).toString("hex").toUpperCase()}`;
+  return `IPPSCC-${randomBytes(8).toString("hex").toUpperCase()}`;
 }
 
 export function referenceId(): string {

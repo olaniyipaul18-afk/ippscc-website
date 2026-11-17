@@ -1,9 +1,9 @@
-import { requireSession } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore } from "@/lib/store";
 
 /** Admin: list members with optional search/status filters. */
 export async function GET(req: Request) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const url = new URL(req.url);
   const list = await getStore().listMembers(

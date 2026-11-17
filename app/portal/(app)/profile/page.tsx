@@ -129,14 +129,13 @@ export default function ProfilePage() {
     }
     setPwBusy(true);
     try {
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "change-password", current: pw.current, next: pw.next }),
+        body: JSON.stringify({ current: pw.current, next: pw.next }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Password change failed.");
-      setMember(data.member);
       setPw({ current: "", next: "", confirm: "" });
       setPwMsg("Password updated successfully.");
     } catch (err) {

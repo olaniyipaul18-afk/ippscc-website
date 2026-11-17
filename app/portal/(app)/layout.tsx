@@ -8,5 +8,6 @@ export default async function PortalAppLayout({ children }: { children: React.Re
   if (!session || session.role !== "member") redirect("/portal/login");
   const member = await getStore().getMember(session.sub);
   if (!member || member.status === "suspended") redirect("/portal/login");
+  if (member.mustChangePassword) redirect("/portal/change-password");
   return <PortalShell member={member}>{children}</PortalShell>;
 }

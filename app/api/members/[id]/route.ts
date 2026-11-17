@@ -1,11 +1,11 @@
-import { requireSession } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore, type MemberStatus } from "@/lib/store";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 /** Admin: member detail. */
 export async function GET(_req: Request, { params }: Ctx) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const { id } = await params;
   const member = await getStore().getMember(id);
@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: Ctx) {
 
 /** Admin: set status, or reset password (returns a one-time temporary password). */
 export async function PATCH(req: Request, { params }: Ctx) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const { id } = await params;
   const store = getStore();
@@ -33,7 +33,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     await store.createNotification(
       id,
       "Your password was reset",
-      "An administrator reset your portal password. Use the new temporary password issued to you, then set your own password in Profile → Security."
+      "An administrator reset your portal password. Use the new temporary password issued to you; the portal will ask you to set a new password before you can continue."
     );
     return Response.json({ member: result.member, tempPassword: result.temp });
   }

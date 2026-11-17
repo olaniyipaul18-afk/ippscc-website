@@ -1,4 +1,4 @@
-import { requireSession } from "@/lib/auth";
+import { requirePasswordUpdatedSession } from "@/lib/session-guard";
 import { getStore } from "@/lib/store";
 
 /** Public: submit a membership application. */
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
 /** Admin: list applications with optional status/search filters. */
 export async function GET(req: Request) {
-  const gate = await requireSession("admin");
+  const gate = await requirePasswordUpdatedSession("admin");
   if ("error" in gate) return gate.error;
   const url = new URL(req.url);
   const list = await getStore().listApplications(

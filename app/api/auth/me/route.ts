@@ -8,7 +8,14 @@ export async function GET() {
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const mode = getMode();
   if (session.role === "admin") {
-    return Response.json({ role: "admin", name: session.name, mode });
+    const admin = await getStore().getAdmin(session.sub);
+    if (!admin) return Response.json({ error: "Account not found." }, { status: 401 });
+    return Response.json({
+      role: "admin",
+      name: admin.name,
+      mustChangePassword: admin.mustChangePassword,
+      mode,
+    });
   }
   const member = await getStore().getMember(session.sub);
   if (!member) return Response.json({ error: "Account not found." }, { status: 401 });

@@ -7,6 +7,7 @@ import {
   FileText,
   Globe,
   LayoutDashboard,
+  KeyRound,
   LogOut,
   Megaphone,
   ShieldCheck,
@@ -24,6 +25,7 @@ const NAV = [
   { href: "/admin/applications", label: "Applications", icon: FileText },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/notifications", label: "Broadcast", icon: Megaphone },
+  { href: "/admin/security", label: "Security", icon: KeyRound },
   { href: "/", label: "Website", icon: Globe },
 ];
 
