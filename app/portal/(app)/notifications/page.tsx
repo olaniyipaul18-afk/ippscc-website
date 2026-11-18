@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, CheckCheck, Loader2 } from "lucide-react";
-import type { NotificationItem } from "@/lib/store";
+import { Bell, CheckCheck, Download, FileText, Loader2, Paperclip } from "lucide-react";
+import type { NotificationItemPublic } from "@/lib/store";
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function NotificationsPage() {
-  const [items, setItems] = useState<NotificationItem[] | null>(null);
+  const [items, setItems] = useState<NotificationItemPublic[] | null>(null);
   const [me, setMe] = useState("");
 
   async function load() {
@@ -100,7 +106,33 @@ export default function NotificationsPage() {
                     <span className="shrink-0 font-mono text-[0.6rem] tracking-[0.2em] text-ink-100/35 uppercase">Read</span>
                   )}
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-ink-100/70">{n.body}</p>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-100/70">{n.body}</p>
+                {n.attachments.length > 0 && (
+                  <section className="mt-5 border-t border-white/10 pt-4" aria-label="Notification attachments">
+                    <h2 className="flex items-center gap-2 font-mono text-[0.6rem] tracking-[0.2em] text-gold-300 uppercase">
+                      <Paperclip className="h-3.5 w-3.5" aria-hidden="true" /> Attached files
+                    </h2>
+                    <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {n.attachments.map((attachment) => (
+                        <li key={attachment.id} className="min-w-0 border border-white/10 bg-ink-950/40">
+                          <a href={attachment.href} target="_blank" rel="noreferrer" className="block p-3 transition-colors hover:bg-white/[0.03]">
+                            {attachment.contentType.startsWith("image/") && (
+                              <img src={`${attachment.href}?inline=1`} alt={attachment.name} loading="lazy" className="mb-3 max-h-80 w-full border border-white/10 bg-ink-950 object-contain" />
+                            )}
+                            <span className="flex items-center justify-between gap-3">
+                              <span className="flex min-w-0 items-center gap-2">
+                                <FileText className="h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
+                                <span className="truncate text-sm text-white">{attachment.name}</span>
+                              </span>
+                              <Download className="h-4 w-4 shrink-0 text-gold-300" aria-hidden="true" />
+                            </span>
+                            <span className="mt-1 block pl-6 font-mono text-[0.58rem] text-ink-100/40">{formatBytes(attachment.size)} · Open or download</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
               </li>
             );
           })}

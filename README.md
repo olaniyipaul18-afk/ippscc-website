@@ -43,7 +43,7 @@ A complete website + application platform:
 - **Admin control** (`/admin`) — email-and-password login, overview stats,
   application review queue, direct provisioning for already-approved members,
   member management (status, password resets, username-request approvals) and
-  notification broadcasts
+  notification broadcasts with private attachments
 - SEO metadata, Open Graph cover, JSON-LD structured data, sitemap, robots,
   web manifest, custom 404 and error pages
 
@@ -80,10 +80,9 @@ Demo credentials (demo mode only, shown on the login screens):
 2. Paste the entire contents of `supabase/schema.sql` → **Run** (creates
    `members`, `applications`, `notifications`, `admins`)
 3. Run the files in `supabase/migrations/` in filename order in the SQL Editor.
-   For the live installation, the first-login migration has already been run;
-   apply `20260916_member_usernames_and_optional_email.sql` before deploying
-   this update. It makes member email optional, backfills usernames, and adds
-   username reservations plus atomic IPPSCC member-ID generation.
+   They add first-login password enforcement, username-based access, and private
+   notification attachments. The attachment bucket is private and configured for
+   up to 4 MB per file; authenticated server routes issue short-lived links.
 4. **Storage** → New bucket → name `member-documents` → toggle **Public** on
 5. Create the first admin:
    ```bash
@@ -113,6 +112,12 @@ code. Members can then sign in with their username or existing email. Admins can
 provision approved members without email under **Admin → Members**; generated
 temporary credentials are shown once and must be shared securely. Username
 changes requested in **Profile** stay pending until an admin approves them.
+
+For admin broadcasts with files, apply `supabase/migrations/20260916_notification_attachments.sql`
+after the username migration and before deploying the attachment update. The
+broadcast panel accepts up to five image/PDF/modern Office/text files (4 MB total)
+for all members or one selected member. Attachments are kept in a private Supabase
+Storage bucket and are available to recipients from their Portal → Notifications.
 
 Security notes: passwords are scrypt-hashed; sessions are HMAC-signed
 httpOnly cookies; the service-role key never leaves the server. For

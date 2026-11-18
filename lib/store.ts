@@ -53,6 +53,16 @@ export type Application = {
   updatedAt: string;
 };
 
+export type NotificationAttachment = {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  path: string; // private Supabase Storage path; never returned to browser clients
+};
+
+export type NotificationAttachmentPublic = Omit<NotificationAttachment, "path"> & { href: string };
+
 export type NotificationItem = {
   id: string;
   audience: string; // member id or "all"
@@ -60,6 +70,11 @@ export type NotificationItem = {
   body: string;
   createdAt: string;
   readBy: string[];
+  attachments: NotificationAttachment[];
+};
+
+export type NotificationItemPublic = Omit<NotificationItem, "attachments"> & {
+  attachments: NotificationAttachmentPublic[];
 };
 
 export type AdminUser = { id: string; email: string; name: string; passwordHash: string; mustChangePassword: boolean };
@@ -94,8 +109,11 @@ export interface Store {
   trackApplication(ref: string, email: string): Promise<Application | null>;
   notificationsFor(memberId: string): Promise<NotificationItem[]>;
   markNotificationsRead(memberId: string, ids: "all" | string[]): Promise<void>;
-  createNotification(audience: string, title: string, body: string): Promise<NotificationItem>;
+  createNotification(audience: string, title: string, body: string, attachments?: NotificationAttachment[]): Promise<NotificationItem>;
   recentNotifications(limit?: number): Promise<NotificationItem[]>;
+  uploadNotificationAttachment(path: string, bytes: ArrayBuffer, contentType: string): Promise<void>;
+  deleteNotificationAttachment(path: string): Promise<void>;
+  createNotificationAttachmentUrl(path: string, downloadName?: string): Promise<string | null>;
   stats(): Promise<Stats>;
   uploadProfilePhoto(memberId: string, bytes: ArrayBuffer, contentType: string): Promise<string | null>;
 }
@@ -233,12 +251,12 @@ class DemoStore implements Store {
     const n1: NotificationItem = {
       id: "not_seed_1", audience: "all", title: "Welcome to the Corps Portal",
       body: "Your account is active. Complete your profile, review your digital ID card, and watch this space for formation announcements.",
-      createdAt: now, readBy: [],
+      createdAt: now, readBy: [], attachments: [],
     };
     const n2: NotificationItem = {
       id: "not_seed_2", audience: m1.id, title: "Lagos Command fellowship — Saturday",
       body: "Monthly chaplains' fellowship holds this Saturday at the Lagos Command hall. Attendance counts toward continuing development.",
-      createdAt: now, readBy: [],
+      createdAt: now, readBy: [], attachments: [],
     };
     this.notifications.set(n1.id, n1);
     this.notifications.set(n2.id, n2);
@@ -451,8 +469,8 @@ class DemoStore implements Store {
     }
   }
 
-  async createNotification(audience: string, title: string, body: string) {
-    const n: NotificationItem = { id: newId("not"), audience, title, body, createdAt: new Date().toISOString(), readBy: [] };
+  async createNotification(audience: string, title: string, body: string, attachments: NotificationAttachment[] = []) {
+    const n: NotificationItem = { id: newId("not"), audience, title, body, createdAt: new Date().toISOString(), readBy: [], attachments };
     this.notifications.set(n.id, n);
     return n;
   }
@@ -475,6 +493,16 @@ class DemoStore implements Store {
     };
   }
 
+  async uploadNotificationAttachment(_path: string, _bytes: ArrayBuffer, _contentType: string) {
+    throw new Error("File attachments require the production Supabase backend.");
+  }
+
+  async deleteNotificationAttachment(_path: string) {}
+
+  async createNotificationAttachmentUrl(_path: string, _downloadName?: string) {
+    return null;
+  }
+
   async uploadProfilePhoto(_memberId: string, _bytes: ArrayBuffer, _contentType: string) {
     return null; // photo uploads require the Supabase backend
   }
@@ -492,7 +520,10 @@ type ApplicationRow = {
   id: string; ref: string; email: string; name: string; payload: Record<string, unknown>;
   status: ApplicationStatus; notes: ApplicationNote[]; created_at: string; updated_at: string;
 };
-type NotificationRow = { id: string; audience: string; title: string; body: string; created_at: string; read_by: string[] };
+type NotificationRow = {
+  id: string; audience: string; title: string; body: string; created_at: string;
+  read_by: string[]; attachments?: NotificationAttachment[];
+};
 type AdminRow = { id: string; email: string; name: string; password_hash: string; must_change_password?: boolean };
 
 const toMember = (r: MemberRow): Member => ({
@@ -509,7 +540,7 @@ const toApplication = (r: ApplicationRow): Application => ({
 });
 const toNotification = (r: NotificationRow): NotificationItem => ({
   id: r.id, audience: r.audience, title: r.title, body: r.body,
-  createdAt: r.created_at, readBy: r.read_by || [],
+  createdAt: r.created_at, readBy: r.read_by || [], attachments: r.attachments || [],
 });
 const toAdmin = (r: AdminRow): AdminUser => ({
   id: r.id, email: r.email, name: r.name, passwordHash: r.password_hash,
@@ -783,8 +814,8 @@ class SupabaseStore implements Store {
     }
   }
 
-  async createNotification(audience: string, title: string, body: string) {
-    const row = { id: newId("not"), audience, title, body, created_at: new Date().toISOString(), read_by: [] };
+  async createNotification(audience: string, title: string, body: string, attachments: NotificationAttachment[] = []) {
+    const row = { id: newId("not"), audience, title, body, created_at: new Date().toISOString(), read_by: [], attachments };
     const { data, error } = await this.db.from("notifications").insert(row).select("*").single();
     if (error || !data) throw new Error(error?.message || "Failed to create notification");
     return toNotification(data as NotificationRow);
@@ -811,6 +842,29 @@ class SupabaseStore implements Store {
       applicationsTotal: applicationsTotal || 0,
       approvedTotal: approved?.length || 0,
     };
+  }
+
+  async uploadNotificationAttachment(path: string, bytes: ArrayBuffer, contentType: string) {
+    const { error } = await this.db.storage.from("notification-attachments").upload(path, bytes, {
+      contentType,
+      upsert: false,
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  async deleteNotificationAttachment(path: string) {
+    const { error } = await this.db.storage.from("notification-attachments").remove([path]);
+    if (error) throw new Error(error.message);
+  }
+
+  async createNotificationAttachmentUrl(path: string, downloadName?: string) {
+    const { data, error } = await this.db.storage.from("notification-attachments").createSignedUrl(
+      path,
+      300,
+      downloadName ? { download: downloadName } : undefined
+    );
+    if (error || !data?.signedUrl) return null;
+    return data.signedUrl;
   }
 
   async uploadProfilePhoto(memberId: string, bytes: ArrayBuffer, contentType: string) {
