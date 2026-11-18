@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     if (!member || member.status === "suspended") {
       return Response.json({ error: "Account not found or suspended." }, { status: 404 });
     }
-    const verified = await store.verifyMember(member.email, current);
+    const verified = await store.verifyMember(member.username, current);
     if (!verified) return Response.json({ error: "Current password is incorrect." }, { status: 403 });
     const updated = await store.updateMember(gate.session.sub, {
       passwordHash: hashPassword(next),

@@ -12,7 +12,7 @@ type LoginFormProps = {
 
 export default function LoginForm({ role, redirectTo }: LoginFormProps) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +40,9 @@ export default function LoginForm({ role, redirectTo }: LoginFormProps) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify(role === "admin"
+          ? { email: identifier, password, role }
+          : { identifier, password, role }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -58,23 +60,23 @@ export default function LoginForm({ role, redirectTo }: LoginFormProps) {
   }
 
   const demoCreds = role === "admin"
-    ? { email: "admin@ippscc.org", password: "Admin123!" }
-    : { email: "member@ippscc.org", password: "Member123!" };
+    ? { identifier: "admin@ippscc.org", password: "Admin123!" }
+    : { identifier: "member@ippscc.org", password: "Member123!" };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" aria-label={role === "admin" ? "Administrator sign in" : "Member sign in"}>
       <div>
-        <label htmlFor={`${role}-email`} className="mb-2 block font-mono text-[0.65rem] tracking-[0.22em] text-ink-100/60 uppercase">
-          Email Address
+        <label htmlFor={role === "admin" ? "admin-email" : "member-identifier"} className="mb-2 block font-mono text-[0.65rem] tracking-[0.22em] text-ink-100/60 uppercase">
+          {role === "admin" ? "Email Address" : "Username or Email"}
         </label>
         <input
-          id={`${role}-email`}
-          type="email"
+          id={role === "admin" ? "admin-email" : "member-identifier"}
+          type={role === "admin" ? "email" : "text"}
           required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          autoComplete={role === "admin" ? "email" : "username"}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          placeholder={role === "admin" ? "you@example.com" : "Your username or email"}
           className="w-full border border-white/15 bg-ink-900/80 px-4 py-3.5 text-[0.95rem] text-white placeholder:text-ink-100/35 transition-colors focus:border-gold-400 focus:outline-none"
         />
       </div>
@@ -134,12 +136,12 @@ export default function LoginForm({ role, redirectTo }: LoginFormProps) {
             Demo credentials
           </p>
           <p className="mt-1.5 font-mono text-xs text-ink-100/70">
-            {demoCreds.email} · {demoCreds.password}
+            {demoCreds.identifier} · {demoCreds.password}
           </p>
           <button
             type="button"
             onClick={() => {
-              setEmail(demoCreds.email);
+              setIdentifier(demoCreds.identifier);
               setPassword(demoCreds.password);
             }}
             className="mt-2 font-mono text-[0.62rem] tracking-[0.2em] text-gold-400 uppercase underline underline-offset-4 hover:text-gold-300"

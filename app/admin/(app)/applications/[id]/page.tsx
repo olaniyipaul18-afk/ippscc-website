@@ -21,7 +21,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState<ApplicationStatus | null>(null);
   const [error, setError] = useState("");
-  const [creds, setCreds] = useState<{ memberId: string; email: string; tempPassword: string } | null>(null);
+  const [creds, setCreds] = useState<{ memberId: string; username: string; email: string; tempPassword: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const load = useCallback(() => {
@@ -63,7 +63,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
   function copyCreds() {
     if (!creds) return;
     navigator.clipboard.writeText(
-      `IPPSCC login — Member ID: ${creds.memberId}, Email: ${creds.email}, Temporary password: ${creds.tempPassword}`
+      `IPPSCC member: ${app?.name || ""}\nUsername: ${creds.username}\nMember ID: ${creds.memberId}\nEmail: ${creds.email}\nTemporary password: ${creds.tempPassword}\nSign in at https://ippscc.org/portal/login and change the temporary password at first login.`
     ).catch(() => {});
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
@@ -102,10 +102,14 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
           <p className="font-mono text-[0.65rem] tracking-[0.24em] text-gold-300 uppercase">
             Member account provisioned — share these login details securely (shown once)
           </p>
-          <dl className="mt-4 grid gap-3 font-mono text-sm sm:grid-cols-3">
+          <dl className="mt-4 grid gap-3 font-mono text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <div className="border border-white/10 bg-ink-950/60 px-4 py-3">
+              <dt className="text-[0.6rem] tracking-[0.2em] text-ink-100/45 uppercase">Username</dt>
+              <dd className="mt-1 break-all text-gold-200">{creds.username}</dd>
+            </div>
             <div className="border border-white/10 bg-ink-950/60 px-4 py-3">
               <dt className="text-[0.6rem] tracking-[0.2em] text-ink-100/45 uppercase">Member ID</dt>
-              <dd className="mt-1 text-gold-200">{creds.memberId}</dd>
+              <dd className="mt-1 break-all text-gold-200">{creds.memberId}</dd>
             </div>
             <div className="border border-white/10 bg-ink-950/60 px-4 py-3">
               <dt className="text-[0.6rem] tracking-[0.2em] text-ink-100/45 uppercase">Email</dt>
@@ -113,7 +117,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
             </div>
             <div className="border border-white/10 bg-ink-950/60 px-4 py-3">
               <dt className="text-[0.6rem] tracking-[0.2em] text-ink-100/45 uppercase">Temporary Password</dt>
-              <dd className="mt-1 text-gold-200">{creds.tempPassword}</dd>
+              <dd className="mt-1 break-all text-gold-200">{creds.tempPassword}</dd>
             </div>
           </dl>
           <button

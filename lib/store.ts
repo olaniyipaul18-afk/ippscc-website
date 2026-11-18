@@ -22,7 +22,10 @@ export type ApplicationStatus =
 export type Member = {
   id: string;
   memberId: string;
-  email: string;
+  username: string;
+  requestedUsername: string | null;
+  usernameChangeRequestedAt: string | null;
+  email: string | null;
   name: string;
   title: string;
   rank: string;
@@ -71,16 +74,19 @@ export type Stats = {
 
 export interface Store {
   mode: "demo" | "supabase";
-  verifyMember(email: string, password: string): Promise<MemberPublic | null>;
+  verifyMember(identifier: string, password: string): Promise<MemberPublic | null>;
   verifyAdmin(email: string, password: string): Promise<AdminUser | null>;
   getAdmin(id: string): Promise<AdminUser | null>;
   updateAdminPassword(id: string, passwordHash: string): Promise<AdminUser | null>;
   getMember(id: string): Promise<MemberPublic | null>;
   getMemberByEmail(email: string): Promise<MemberPublic | null>;
+  getMemberByUsername(username: string): Promise<MemberPublic | null>;
+  getMemberByRequestedUsername(username: string): Promise<MemberPublic | null>;
   listMembers(q?: string, status?: string): Promise<MemberPublic[]>;
   updateMember(id: string, patch: Partial<Member>): Promise<MemberPublic | null>;
   resetMemberPassword(id: string): Promise<{ member: MemberPublic; temp: string } | null>;
   createMemberFromApplication(app: Application, by: string): Promise<{ member: MemberPublic; temp: string }>;
+  createInvitedMembers(names: string[]): Promise<{ member: MemberPublic; temp: string }[]>;
   createApplication(email: string, name: string, payload: Record<string, unknown>): Promise<Application>;
   listApplications(status?: string, q?: string): Promise<Application[]>;
   getApplication(id: string): Promise<Application | null>;
@@ -98,6 +104,48 @@ const strip = (m: Member): MemberPublic => {
   const { passwordHash: _passwordHash, ...rest } = m;
   return rest;
 };
+
+const normalizeMemberName = (name: string) => name
+  .normalize("NFKD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .replace(/\b(?:h\.?\s*i\.?\s*m\.?|dr|mr|mrs|ms|miss|prof|professor|amb|ambassador|hon|honourable|rev|reverend|dcns)\b\.?/g, " ")
+  .replace(/\b(?:jp|fsm|fcrb)\b\.?/g, " ")
+  .replace(/[^a-z0-9]/g, "");
+
+function usernameBaseFromName(name: string): string {
+  const cleaned = name
+    .replace(/\bH\.?\s*I\.?\s*M\.?\b/gi, " ")
+    .replace(/\b(?:dr|mr|mrs|ms|miss|prof|professor|amb|ambassador|hon|honourable|rev|reverend|dcns|jp|fsm|fcrb)\b\.?/gi, " ");
+  const tokens = cleaned.toLowerCase().match(/[a-z0-9]+/g) || [];
+  const base = tokens.length > 1 ? `${tokens[0]}.${tokens[tokens.length - 1]}` : tokens[0] || "member";
+  const safe = base.slice(0, 30).replace(/\.+$/g, "");
+  return safe.length >= 3 ? safe : "member";
+}
+
+function uniqueUsername(name: string, used: Set<string>): string {
+  const base = usernameBaseFromName(name);
+  let candidate = base;
+  let suffix = 2;
+  while (used.has(candidate.toLowerCase())) {
+    const tail = String(suffix++);
+    candidate = `${base.slice(0, 30 - tail.length)}${tail}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function uniqueMemberId(used: Set<string>, year = new Date().getFullYear()): string {
+  const prefix = `IPPSCC/USA/${year}/`;
+  let number = 1;
+  let candidate = `${prefix}${String(number).padStart(4, "0")}`;
+  while (used.has(candidate.toLowerCase())) {
+    number += 1;
+    candidate = `${prefix}${String(number).padStart(4, "0")}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
 
 /* ————————————————————————— Demo store ————————————————————————— */
 
@@ -123,6 +171,9 @@ class DemoStore implements Store {
     const m1: Member = {
       id: "mem_seed_1",
       memberId: `IPPSCC/USA/2025/${String(this.seq).padStart(4, "0")}`,
+      username: "adaeze.nwosu",
+      requestedUsername: null,
+      usernameChangeRequestedAt: null,
       email: "member@ippscc.org",
       name: "Chaplain Adaeze Nwosu",
       title: "Chaplain Officer",
@@ -145,6 +196,9 @@ class DemoStore implements Store {
     const m2: Member = {
       id: "mem_seed_2",
       memberId: "IPPSCC/USA/2025/0137",
+      username: "john.miller",
+      requestedUsername: null,
+      usernameChangeRequestedAt: null,
       email: "john.miller@example.com",
       name: "Chaplain John Miller",
       title: "Senior Chaplain",
@@ -193,15 +247,16 @@ class DemoStore implements Store {
   private matchMember(m: Member, q?: string, status?: string) {
     if (status && status !== "all" && m.status !== status) return false;
     if (q) {
-      const hay = `${m.name} ${m.email} ${m.memberId}`.toLowerCase();
+      const hay = `${m.name} ${m.username} ${m.email || ""} ${m.memberId}`.toLowerCase();
       if (!hay.includes(q.toLowerCase())) return false;
     }
     return true;
   }
 
-  async verifyMember(email: string, password: string) {
+  async verifyMember(identifier: string, password: string) {
     const { verifyPassword } = await import("./auth");
-    const m = [...this.members.values()].find((x) => x.email.toLowerCase() === email.toLowerCase());
+    const key = identifier.trim().toLowerCase();
+    const m = [...this.members.values()].find((x) => x.username.toLowerCase() === key || x.email?.toLowerCase() === key);
     if (!m || m.status === "suspended") return null;
     const ok = verifyPassword(password, m.passwordHash);
     return ok ? strip(m) : null;
@@ -232,7 +287,20 @@ class DemoStore implements Store {
   }
 
   async getMemberByEmail(email: string) {
-    const m = [...this.members.values()].find((x) => x.email.toLowerCase() === email.toLowerCase());
+    const key = email.trim().toLowerCase();
+    const m = [...this.members.values()].find((x) => x.email?.toLowerCase() === key);
+    return m ? strip(m) : null;
+  }
+
+  async getMemberByUsername(username: string) {
+    const key = username.trim().toLowerCase();
+    const m = [...this.members.values()].find((x) => x.username.toLowerCase() === key);
+    return m ? strip(m) : null;
+  }
+
+  async getMemberByRequestedUsername(username: string) {
+    const key = username.trim().toLowerCase();
+    const m = [...this.members.values()].find((x) => x.requestedUsername?.toLowerCase() === key);
     return m ? strip(m) : null;
   }
 
@@ -263,9 +331,13 @@ class DemoStore implements Store {
     const year = new Date().getFullYear();
     const temp = tempPassword();
     const payload = app.payload as Record<string, string>;
+    const usedUsernames = new Set([...this.members.values()].flatMap((member) => [member.username.toLowerCase(), member.requestedUsername?.toLowerCase() || ""]));
     const m: Member = {
       id: newId("mem"),
       memberId: `IPPSCC/USA/${year}/${String(this.seq).padStart(4, "0")}`,
+      username: uniqueUsername(app.name, usedUsernames),
+      requestedUsername: null,
+      usernameChangeRequestedAt: null,
       email: app.email,
       name: app.name,
       title: "Chaplain Officer",
@@ -283,6 +355,44 @@ class DemoStore implements Store {
     };
     this.members.set(m.id, m);
     return { member: strip(m), temp };
+  }
+
+  async createInvitedMembers(names: string[]) {
+    const existing = [...this.members.values()];
+    const existingNames = new Set(existing.map((m) => normalizeMemberName(m.name)));
+    const inputNames = names.map(normalizeMemberName);
+    if (new Set(inputNames).size !== inputNames.length) throw new Error("The list contains a duplicate name.");
+    const duplicate = names.find((name) => existingNames.has(normalizeMemberName(name)));
+    if (duplicate) throw new Error(`A member named ${duplicate.trim()} already exists.`);
+
+    const usedUsernames = new Set(existing.flatMap((m) => [m.username.toLowerCase(), m.requestedUsername?.toLowerCase() || ""]));
+    const usedMemberIds = new Set(existing.map((m) => m.memberId.toLowerCase()));
+    const now = new Date().toISOString();
+    const results: { member: MemberPublic; temp: string }[] = [];
+    for (const rawName of names) {
+      const name = rawName.trim().replace(/\s+/g, " ");
+      const temp = tempPassword();
+      const member: Member = {
+        id: newId("mem"),
+        memberId: uniqueMemberId(usedMemberIds),
+        username: uniqueUsername(name, usedUsernames),
+        requestedUsername: null,
+        usernameChangeRequestedAt: null,
+        email: null,
+        name,
+        title: "Distinguished Fellow",
+        rank: "Distinguished Fellow",
+        status: "active",
+        region: "",
+        joinedAt: now,
+        profile: { fullName: name, country: "", photoUrl: "" },
+        passwordHash: hashPassword(temp),
+        mustChangePassword: true,
+      };
+      this.members.set(member.id, member);
+      results.push({ member: strip(member), temp });
+    }
+    return results;
   }
 
   async createApplication(email: string, name: string, payload: Record<string, unknown>) {
@@ -373,7 +483,8 @@ class DemoStore implements Store {
 /* ————————————————————————— Supabase store ————————————————————————— */
 
 type MemberRow = {
-  id: string; member_id: string; email: string; name: string; title: string; rank: string;
+  id: string; member_id: string; username: string; requested_username: string | null;
+  username_change_requested_at: string | null; email: string | null; name: string; title: string; rank: string;
   status: MemberStatus; region: string; joined_at: string; profile: Record<string, unknown>;
   password_hash: string; must_change_password: boolean;
 };
@@ -385,7 +496,10 @@ type NotificationRow = { id: string; audience: string; title: string; body: stri
 type AdminRow = { id: string; email: string; name: string; password_hash: string; must_change_password?: boolean };
 
 const toMember = (r: MemberRow): Member => ({
-  id: r.id, memberId: r.member_id, email: r.email, name: r.name, title: r.title, rank: r.rank,
+  id: r.id, memberId: r.member_id, username: r.username,
+  requestedUsername: r.requested_username || null,
+  usernameChangeRequestedAt: r.username_change_requested_at || null,
+  email: r.email ?? null, name: r.name, title: r.title, rank: r.rank,
   status: r.status, region: r.region, joinedAt: r.joined_at, profile: r.profile || {},
   passwordHash: r.password_hash, mustChangePassword: r.must_change_password,
 });
@@ -406,6 +520,31 @@ class SupabaseStore implements Store {
   mode = "supabase" as const;
   private db: SupabaseClient;
 
+  private async nextMemberId(): Promise<string> {
+    const { data, error } = await this.db.rpc("ippscc_next_member_id");
+    if (error || typeof data !== "string") {
+      throw new Error(error?.message || "Could not generate a member ID. Run the member-account migration first.");
+    }
+    return data;
+  }
+
+  private async loadMemberNamingRows(): Promise<{ id: string; name: string; username: string; requested_username: string | null }[]> {
+    const rows: { id: string; name: string; username: string; requested_username: string | null }[] = [];
+    const pageSize = 500;
+    for (let from = 0; from < 50000; from += pageSize) {
+      const { data, error } = await this.db
+        .from("members")
+        .select("id,name,username,requested_username")
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+      if (error) throw new Error(error.message);
+      const page = (data || []) as typeof rows;
+      rows.push(...page);
+      if (page.length < pageSize) return rows;
+    }
+    throw new Error("Membership list is too large to safely check for duplicate accounts.");
+  }
+
   constructor() {
     this.db = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -414,9 +553,15 @@ class SupabaseStore implements Store {
     );
   }
 
-  async verifyMember(email: string, password: string) {
+  async verifyMember(identifier: string, password: string) {
     const { verifyPassword } = await import("./auth");
-    const { data } = await this.db.from("members").select("*").ilike("email", email).maybeSingle();
+    const key = identifier.trim();
+    const byUsername = await this.db.from("members").select("*").eq("username", key.toLowerCase()).maybeSingle();
+    let data = byUsername.data;
+    if (!data && key.includes("@")) {
+      const byEmail = await this.db.from("members").select("*").ilike("email", key).maybeSingle();
+      data = byEmail.data;
+    }
     if (!data || data.status === "suspended") return null;
     return verifyPassword(password, (data as MemberRow).password_hash) ? strip(toMember(data as MemberRow)) : null;
   }
@@ -450,30 +595,48 @@ class SupabaseStore implements Store {
   }
 
   async getMemberByEmail(email: string) {
-    const { data } = await this.db.from("members").select("*").ilike("email", email).maybeSingle();
+    if (!email.trim()) return null;
+    const { data } = await this.db.from("members").select("*").ilike("email", email.trim()).maybeSingle();
+    return data ? strip(toMember(data as MemberRow)) : null;
+  }
+
+  async getMemberByUsername(username: string) {
+    const { data } = await this.db.from("members").select("*").eq("username", username.trim().toLowerCase()).maybeSingle();
+    return data ? strip(toMember(data as MemberRow)) : null;
+  }
+
+  async getMemberByRequestedUsername(username: string) {
+    const { data } = await this.db.from("members").select("*").eq("requested_username", username.trim().toLowerCase()).maybeSingle();
     return data ? strip(toMember(data as MemberRow)) : null;
   }
 
   async listMembers(q?: string, status?: string) {
     let query = this.db.from("members").select("*").order("joined_at", { ascending: false }).limit(500);
     if (status && status !== "all") query = query.eq("status", status);
-    if (q) query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,member_id.ilike.%${q}%`);
+    if (q) query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,username.ilike.%${q}%,member_id.ilike.%${q}%`);
     const { data } = await query;
     return (data as MemberRow[] | null || []).map((r) => strip(toMember(r)));
   }
 
   async updateMember(id: string, patch: Partial<Member>) {
     const current = await this.db.from("members").select("profile").eq("id", id).maybeSingle();
-    const profile = { ...((current?.data as { profile?: Record<string, unknown> } | null)?.profile || {}), ...(patch.profile || {}) };
+    if (current.error) throw new Error(current.error.message);
+    if (!current.data) return null;
+    const profile = { ...((current.data as { profile?: Record<string, unknown> }).profile || {}), ...(patch.profile || {}) };
     const row: Record<string, unknown> = { profile };
     if (patch.name !== undefined) row.name = patch.name;
+    if (patch.email !== undefined) row.email = patch.email;
+    if (patch.username !== undefined) row.username = patch.username;
+    if (patch.requestedUsername !== undefined) row.requested_username = patch.requestedUsername;
+    if (patch.usernameChangeRequestedAt !== undefined) row.username_change_requested_at = patch.usernameChangeRequestedAt;
     if (patch.title !== undefined) row.title = patch.title;
     if (patch.rank !== undefined) row.rank = patch.rank;
     if (patch.status !== undefined) row.status = patch.status;
     if (patch.region !== undefined) row.region = patch.region;
     if (patch.passwordHash !== undefined) row.password_hash = patch.passwordHash;
     if (patch.mustChangePassword !== undefined) row.must_change_password = patch.mustChangePassword;
-    const { data } = await this.db.from("members").update(row).eq("id", id).select("*").maybeSingle();
+    const { data, error } = await this.db.from("members").update(row).eq("id", id).select("*").maybeSingle();
+    if (error) throw new Error(error.message);
     return data ? strip(toMember(data as MemberRow)) : null;
   }
 
@@ -489,14 +652,17 @@ class SupabaseStore implements Store {
   }
 
   async createMemberFromApplication(app: Application, _by: string) {
-    const year = new Date().getFullYear();
-    const { count } = await this.db.from("members").select("id", { count: "exact", head: true });
-    const seq = String((count || 0) + 1).padStart(4, "0");
-    const temp = tempPassword();
+    const rows = await this.loadMemberNamingRows();
+    const usedUsernames = new Set(rows.flatMap((r) => [r.username.toLowerCase(), r.requested_username?.toLowerCase() || ""]));
+    const username = uniqueUsername(app.name, usedUsernames);
     const payload = app.payload as Record<string, string>;
+    const temp = tempPassword();
     const row = {
       id: newId("mem"),
-      member_id: `IPPSCC/USA/${year}/${seq}`,
+      member_id: await this.nextMemberId(),
+      username,
+      requested_username: null,
+      username_change_requested_at: null,
       email: app.email,
       name: app.name,
       title: "Chaplain Officer",
@@ -515,6 +681,48 @@ class SupabaseStore implements Store {
     const { data, error } = await this.db.from("members").insert(row).select("*").single();
     if (error || !data) throw new Error(error?.message || "Failed to create member");
     return { member: strip(toMember(data as MemberRow)), temp };
+  }
+
+  async createInvitedMembers(names: string[]) {
+    const rows = await this.loadMemberNamingRows();
+    const existingNames = new Set(rows.map((r) => normalizeMemberName(r.name)));
+    const inputNames = names.map(normalizeMemberName);
+    if (new Set(inputNames).size !== inputNames.length) throw new Error("The list contains a duplicate name.");
+    const duplicate = names.find((name) => existingNames.has(normalizeMemberName(name)));
+    if (duplicate) throw new Error(`A member named ${duplicate.trim()} already exists.`);
+
+    const usedUsernames = new Set(rows.flatMap((r) => [r.username.toLowerCase(), r.requested_username?.toLowerCase() || ""]));
+    const now = new Date().toISOString();
+    const credentials = await Promise.all(names.map(async (rawName) => {
+      const name = rawName.trim().replace(/\s+/g, " ");
+      const temp = tempPassword();
+      const id = newId("mem");
+      return {
+        id,
+        temp,
+        row: {
+          id,
+          member_id: await this.nextMemberId(),
+          username: uniqueUsername(name, usedUsernames),
+          requested_username: null,
+          username_change_requested_at: null,
+          email: null,
+          name,
+          title: "Distinguished Fellow",
+          rank: "Distinguished Fellow",
+          status: "active",
+          region: "",
+          joined_at: now,
+          profile: { fullName: name, country: "", photoUrl: "" },
+          password_hash: hashPassword(temp),
+          must_change_password: true,
+        },
+      };
+    }));
+    const { data, error } = await this.db.from("members").insert(credentials.map((c) => c.row)).select("*");
+    if (error || !data) throw new Error(error?.message || "Could not provision invited members.");
+    const tempById = new Map(credentials.map((c) => [c.id, c.temp]));
+    return (data as MemberRow[]).map((row) => ({ member: strip(toMember(row)), temp: tempById.get(row.id) || "" }));
   }
 
   async createApplication(email: string, name: string, payload: Record<string, unknown>) {

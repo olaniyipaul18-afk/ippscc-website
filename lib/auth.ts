@@ -109,7 +109,8 @@ export async function requireSession(
 }
 
 export function tempPassword(): string {
-  return `IPPSCC-${randomBytes(8).toString("hex").toUpperCase()}`;
+  // 128 random bits; shown once by the admin and replaced at first sign-in.
+  return `IPPSCC-${randomBytes(16).toString("hex").toUpperCase()}`;
 }
 
 export function referenceId(): string {

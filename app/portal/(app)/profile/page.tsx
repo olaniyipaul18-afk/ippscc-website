@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
-import { Camera, CheckCircle2, KeyRound, Loader2, UserRound } from "lucide-react";
+import { AtSign, Camera, CheckCircle2, KeyRound, Loader2, UserRound } from "lucide-react";
 import type { MemberPublic } from "@/lib/store";
 
 const inputCls =
@@ -51,6 +51,9 @@ export default function ProfilePage() {
   const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
   const [pwMsg, setPwMsg] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
+  const [usernameRequest, setUsernameRequest] = useState("");
+  const [usernameMsg, setUsernameMsg] = useState("");
+  const [usernameBusy, setUsernameBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -59,6 +62,7 @@ export default function ProfilePage() {
       .then((d) => {
         if (!d) return;
         setMember(d.member);
+        setUsernameRequest(d.member.requestedUsername || "");
         const p = (d.member.profile || {}) as Record<string, unknown>;
         const next: Record<string, string> = {};
         for (const s of FIELDS) for (const f of s.fields) next[f.name] = typeof p[f.name] === "string" ? (p[f.name] as string) : "";
@@ -113,6 +117,28 @@ export default function ProfilePage() {
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function requestUsername(e: FormEvent) {
+    e.preventDefault();
+    setUsernameMsg("");
+    setUsernameBusy(true);
+    try {
+      const res = await fetch("/api/profile/username", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: usernameRequest }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Username request could not be submitted.");
+      setMember(data.member);
+      setUsernameRequest(data.member.requestedUsername || "");
+      setUsernameMsg(data.message || "Username request sent for administrator approval.");
+    } catch (err) {
+      setUsernameMsg(err instanceof Error ? err.message : "Username request could not be submitted.");
+    } finally {
+      setUsernameBusy(false);
     }
   }
 
@@ -214,6 +240,47 @@ export default function ProfilePage() {
           </div>
         </div>
       </section>
+
+      {/* Username */}
+      <form onSubmit={requestUsername} className="mt-5 border border-white/10 bg-white/[0.02] p-6">
+        <h2 className="flex items-center gap-2 font-display text-xl text-white">
+          <AtSign className="h-4 w-4 text-gold-400" aria-hidden="true" /> Account Username
+        </h2>
+        <p className="mt-2 text-sm text-ink-100/60">
+          Current username: <span className="font-mono text-gold-200">{member.username}</span>
+          {member.email && <span> · Email sign-in is also available.</span>}
+        </p>
+        {member.requestedUsername && (
+          <p className="mt-3 border border-gold-500/30 bg-gold-500/[0.06] px-4 py-3 text-sm text-gold-200" role="status">
+            Request pending: <span className="font-mono">{member.requestedUsername}</span>. Your current username remains active until an administrator approves the change.
+          </p>
+        )}
+        <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div>
+            <label htmlFor="requested-username" className={labelCls}>Request a new username</label>
+            <input
+              id="requested-username"
+              type="text"
+              minLength={3}
+              maxLength={32}
+              autoComplete="username"
+              value={usernameRequest}
+              onChange={(e) => setUsernameRequest(e.target.value)}
+              placeholder="e.g. ada.nwosu"
+              className={inputCls}
+            />
+            <p className="mt-2 text-xs text-ink-100/45">3–32 characters. Use letters, numbers, periods, hyphens or underscores. Administrator approval is required.</p>
+          </div>
+          <button
+            type="submit"
+            disabled={usernameBusy || !usernameRequest.trim()}
+            className="bg-gold-500 px-6 py-3 font-mono text-[0.62rem] tracking-[0.2em] text-ink-950 uppercase transition-colors hover:bg-gold-400 disabled:opacity-50"
+          >
+            {usernameBusy ? "Sending…" : member.requestedUsername ? "Update Request" : "Request Change"}
+          </button>
+        </div>
+        {usernameMsg && <p role="status" className="mt-3 text-sm text-ink-100/70">{usernameMsg}</p>}
+      </form>
 
       {/* Details */}
       <form onSubmit={saveProfile} className="mt-5 border border-white/10 bg-white/[0.02] p-6">

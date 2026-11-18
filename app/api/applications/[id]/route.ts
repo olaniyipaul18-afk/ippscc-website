@@ -63,7 +63,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       );
       return Response.json({
         application: updated,
-        credentials: { memberId: member.memberId, email: member.email, tempPassword: temp },
+        credentials: { memberId: member.memberId, username: member.username, email: member.email || app.email, tempPassword: temp },
       });
     }
     return Response.json({ application: updated, memberExists: true });

@@ -37,11 +37,13 @@ A complete website + application platform:
   B: Education, C: Reference & Background) with live progress bar, step
   validation, automatic draft saving, attestation & declaration, tracking
   reference issuance, and public status tracking (`/track`)
-- **Member portal** (`/portal`) — login, dashboard with digital ID card,
-  profile setup (details, photo, password), notifications
-- **Admin control** (`/admin`) — login, overview stats, application review
-  queue (approve → auto-provisions member login), member management
-  (status, password resets), notification broadcasts
+- **Member portal** (`/portal`) — username-or-email login, dashboard with
+  digital ID card, profile setup (details, photo, username-change requests),
+  Security password changes and notifications
+- **Admin control** (`/admin`) — email-and-password login, overview stats,
+  application review queue, direct provisioning for already-approved members,
+  member management (status, password resets, username-request approvals) and
+  notification broadcasts
 - SEO metadata, Open Graph cover, JSON-LD structured data, sitemap, robots,
   web manifest, custom 404 and error pages
 
@@ -52,10 +54,13 @@ A complete website + application platform:
 2. Admin reviews in `/admin/applications`, verifies referees/credentials,
    requests changes or approves
 3. **Approve** auto-creates the member account and shows one-time login
-   credentials (Member ID + temporary password) to share securely
+   credentials (username, Member ID, email and temporary password) to share
+   securely; admins can also provision existing members without email from
+   **Admin → Members**
 4. Payment is arranged out-of-band; admin marks the application **Completed**
-5. Member signs in at `/portal/login`, sets a real password, completes their
-   profile, and receives Corps notifications
+5. Member signs in at `/portal/login` with username or email, changes the
+   temporary password before entering the portal, completes their profile, and
+   receives Corps notifications
 
 ## Backend modes
 
@@ -74,16 +79,21 @@ Demo credentials (demo mode only, shown on the login screens):
 1. Create a project at [supabase.com](https://supabase.com) → open the **SQL Editor**
 2. Paste the entire contents of `supabase/schema.sql` → **Run** (creates
    `members`, `applications`, `notifications`, `admins`)
-3. **Storage** → New bucket → name `member-documents` → toggle **Public** on
-4. Create the first admin:
+3. Run the files in `supabase/migrations/` in filename order in the SQL Editor.
+   For the live installation, the first-login migration has already been run;
+   apply `20260916_member_usernames_and_optional_email.sql` before deploying
+   this update. It makes member email optional, backfills usernames, and adds
+   username reservations plus atomic IPPSCC member-ID generation.
+4. **Storage** → New bucket → name `member-documents` → toggle **Public** on
+5. Create the first admin:
    ```bash
    node scripts/hash-password.mjs "Choose-A-Strong-Password"
    ```
    Paste the output hash into the commented `insert into admins …` statement at
    the bottom of `schema.sql` and run it in the SQL Editor.
-5. Project **Settings → API**: copy the **Project URL** and the
+6. Project **Settings → API**: copy the **Project URL** and the
    **`service_role`** key (secret — server only, never `NEXT_PUBLIC_`).
-6. Add to Vercel (**Settings → Environment Variables**) plus `AUTH_SECRET`
+7. Add to Vercel (**Settings → Environment Variables**) plus `AUTH_SECRET`
    (generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`),
    then redeploy.
 
@@ -96,6 +106,13 @@ for a first-login password change. The updated app requires any member or admin
 with a temporary password (including member password resets) to change it before
 using protected portal features. Members can later change it under **Profile →
 Security**; admins can use **Security** in the admin navigation.
+
+For username-based member access, run `supabase/migrations/20260916_member_usernames_and_optional_email.sql`
+after the first-login migration and before deploying the username/provisioning
+code. Members can then sign in with their username or existing email. Admins can
+provision approved members without email under **Admin → Members**; generated
+temporary credentials are shown once and must be shared securely. Username
+changes requested in **Profile** stay pending until an admin approves them.
 
 Security notes: passwords are scrypt-hashed; sessions are HMAC-signed
 httpOnly cookies; the service-role key never leaves the server. For
