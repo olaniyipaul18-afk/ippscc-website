@@ -43,7 +43,7 @@ A complete website + application platform:
 - **Admin control** (`/admin`) — email-and-password login, overview stats,
   application review queue, direct provisioning for already-approved members,
   member management (status, password resets, username-request approvals) and
-  notification broadcasts with private attachments
+  notification broadcasts with private attachments and deletion controls
 - SEO metadata, Open Graph cover, JSON-LD structured data, sitemap, robots,
   web manifest, custom 404 and error pages
 

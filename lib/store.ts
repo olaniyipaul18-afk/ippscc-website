@@ -61,7 +61,8 @@ export type NotificationAttachment = {
   path: string; // private Supabase Storage path; never returned to browser clients
 };
 
-export type NotificationAttachmentPublic = Omit<NotificationAttachment, "path"> & { href: string };
+export type NotificationAttachmentSummary = Omit<NotificationAttachment, "path">;
+export type NotificationAttachmentPublic = NotificationAttachmentSummary & { href: string };
 
 export type NotificationItem = {
   id: string;
@@ -71,6 +72,10 @@ export type NotificationItem = {
   createdAt: string;
   readBy: string[];
   attachments: NotificationAttachment[];
+};
+
+export type NotificationItemSummary = Omit<NotificationItem, "attachments"> & {
+  attachments: NotificationAttachmentSummary[];
 };
 
 export type NotificationItemPublic = Omit<NotificationItem, "attachments"> & {
@@ -111,6 +116,7 @@ export interface Store {
   markNotificationsRead(memberId: string, ids: "all" | string[]): Promise<void>;
   createNotification(audience: string, title: string, body: string, attachments?: NotificationAttachment[]): Promise<NotificationItem>;
   recentNotifications(limit?: number): Promise<NotificationItem[]>;
+  deleteNotification(id: string): Promise<{ deleted: boolean; attachmentsDeleted: boolean }>;
   uploadNotificationAttachment(path: string, bytes: ArrayBuffer, contentType: string): Promise<void>;
   deleteNotificationAttachment(path: string): Promise<void>;
   createNotificationAttachmentUrl(path: string, downloadName?: string): Promise<string | null>;
@@ -481,6 +487,11 @@ class DemoStore implements Store {
       .slice(0, limit);
   }
 
+  async deleteNotification(id: string) {
+    const deleted = this.notifications.delete(id);
+    return { deleted, attachmentsDeleted: true };
+  }
+
   async stats(): Promise<Stats> {
     const members = [...this.members.values()];
     const apps = [...this.applications.values()];
@@ -824,6 +835,31 @@ class SupabaseStore implements Store {
   async recentNotifications(limit = 20) {
     const { data } = await this.db.from("notifications").select("*").order("created_at", { ascending: false }).limit(limit);
     return (data as NotificationRow[] | null || []).map(toNotification);
+  }
+
+  async deleteNotification(id: string) {
+    const { data: current, error: readError } = await this.db
+      .from("notifications")
+      .select("attachments")
+      .eq("id", id)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!current) return { deleted: false, attachmentsDeleted: true };
+
+    const { data: removed, error: deleteError } = await this.db
+      .from("notifications")
+      .delete()
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
+    if (deleteError) throw new Error(deleteError.message);
+    if (!removed) return { deleted: false, attachmentsDeleted: true };
+
+    const attachments = (current as { attachments?: NotificationAttachment[] }).attachments || [];
+    const paths = attachments.map((attachment) => attachment.path).filter(Boolean);
+    if (paths.length === 0) return { deleted: true, attachmentsDeleted: true };
+    const { error: storageError } = await this.db.storage.from("notification-attachments").remove(paths);
+    return { deleted: true, attachmentsDeleted: !storageError };
   }
 
   async stats(): Promise<Stats> {

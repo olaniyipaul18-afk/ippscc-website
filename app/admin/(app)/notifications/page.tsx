@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { CheckCircle2, FileText, Loader2, Megaphone, Paperclip, X } from "lucide-react";
-import type { MemberPublic, NotificationItemPublic } from "@/lib/store";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { CheckCircle2, FileText, Loader2, Megaphone, Paperclip, Trash2, X } from "lucide-react";
+import type { MemberPublic, NotificationItemSummary } from "@/lib/store";
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 4 * 1024 * 1024;
@@ -28,16 +28,27 @@ export default function BroadcastPage() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
-  const [recent, setRecent] = useState<NotificationItemPublic[]>([]);
+  const [recent, setRecent] = useState<NotificationItemSummary[]>([]);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const loadRecent = useCallback(async () => {
+    const res = await fetch("/api/admin/notifications?limit=50");
+    if (res.ok) {
+      const data = await res.json();
+      setRecent(data.notifications || []);
+    }
+  }, []);
 
   useEffect(() => {
     fetch("/api/members")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d && setMembers(d.members || []))
       .catch(() => {});
-  }, [sent]);
+    loadRecent().catch(() => {});
+  }, [sent, loadRecent]);
 
   function addFiles(fileList: FileList | null) {
     if (!fileList?.length) return;
@@ -72,6 +83,7 @@ export default function BroadcastPage() {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setNotice("");
     setSent(false);
     try {
       const form = new FormData();
@@ -83,17 +95,40 @@ export default function BroadcastPage() {
       const res = await fetch("/api/notifications", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Broadcast failed.");
-      setRecent((r) => [data.notification, ...r].slice(0, 20));
       setTitle("");
       setMessage("");
       setAudience("all");
       setAttachments([]);
       if (fileRef.current) fileRef.current.value = "";
       setSent(true);
+      await loadRecent();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Broadcast failed.");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function deleteNotification(item: NotificationItemSummary) {
+    const filesNote = item.attachments.length ? " Its attached files will also be removed." : "";
+    const confirmed = window.confirm(`Delete “${item.title}” from the recipient portal? This cannot be undone.${filesNote}`);
+    if (!confirmed) return;
+
+    setDeleting(item.id);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/admin/notifications/${encodeURIComponent(item.id)}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Notification could not be deleted.");
+      setRecent((items) => items.filter((existing) => existing.id !== item.id));
+      setNotice(data.attachmentsDeleted === false
+        ? "Notification deleted. An attachment could not be removed from private storage, but it is no longer available from the portal."
+        : "Notification deleted from the recipient portal.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Notification could not be deleted.");
+    } finally {
+      setDeleting(null);
     }
   }
 
@@ -205,6 +240,7 @@ export default function BroadcastPage() {
         {error && (
           <p role="alert" className="mt-4 border border-crimson-500/50 bg-crimson-500/10 px-4 py-3 text-sm text-crimson-300">{error}</p>
         )}
+        {notice && <p role="status" className="mt-4 border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">{notice}</p>}
         <div className="mt-5 flex flex-wrap items-center gap-4">
           <button
             type="submit"
@@ -219,12 +255,30 @@ export default function BroadcastPage() {
 
       {recent.length > 0 && (
         <div className="mt-8">
-          <h2 className="font-mono text-[0.65rem] tracking-[0.26em] text-gold-400 uppercase">Sent This Session</h2>
+          <h2 className="font-mono text-[0.65rem] tracking-[0.26em] text-gold-400 uppercase">Recent Notifications</h2>
+          <p className="mt-2 text-xs text-ink-100/45">Deleting removes the notification from recipients’ portals and removes its attached files. This action cannot be undone.</p>
           <ul className="mt-4 space-y-3">
             {recent.map((n) => (
               <li key={n.id} className="border border-white/10 bg-white/[0.02] px-5 py-4">
-                <p className="text-sm font-medium text-white">{n.title}</p>
-                <p className="mt-0.5 font-mono text-[0.6rem] tracking-[0.18em] text-ink-100/40 uppercase">To {audienceName(n.audience)}</p>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white">{n.title}</p>
+                    <p className="mt-0.5 font-mono text-[0.6rem] tracking-[0.18em] text-ink-100/40 uppercase">
+                      To {audienceName(n.audience)} · {new Date(n.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={deleting === n.id}
+                    onClick={() => deleteNotification(n)}
+                    aria-label={`Delete notification: ${n.title}`}
+                    title="Delete notification"
+                    className="flex shrink-0 items-center gap-2 border border-crimson-500/40 px-3 py-2 text-crimson-300 transition-colors hover:bg-crimson-500/10 disabled:opacity-50"
+                  >
+                    {deleting === n.id ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Trash2 className="h-4 w-4" aria-hidden="true" />}
+                    <span className="font-mono text-[0.56rem] tracking-[0.14em] uppercase">Delete</span>
+                  </button>
+                </div>
                 <p className="mt-2 line-clamp-2 text-sm text-ink-100/65">{n.body}</p>
                 {n.attachments.length > 0 && <p className="mt-2 text-xs text-gold-200/80">Attachments: {n.attachments.map((file) => file.name).join(", ")}</p>}
               </li>
