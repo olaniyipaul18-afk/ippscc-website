@@ -30,6 +30,7 @@ export default async function PortalDashboardPage() {
   }).length;
   const completeness = Math.round((filled / PROFILE_FIELDS.length) * 100);
   const joinedYear = new Date(member.joinedAt).getFullYear();
+  const isDistinguishedFellow = member.rank.trim().toLowerCase() === "distinguished fellow";
 
   return (
     <div>
@@ -50,13 +51,30 @@ export default async function PortalDashboardPage() {
         </Link>
       )}
 
+      {isDistinguishedFellow && (
+        <section
+          aria-labelledby="fellowship-clarification"
+          className="mt-6 border border-gold-500/40 bg-gold-500/[0.06] px-5 py-4"
+        >
+          <p className="font-mono text-[0.6rem] tracking-[0.22em] text-gold-300 uppercase">Fellowship clarification</p>
+          <h2 id="fellowship-clarification" className="mt-2 font-display text-lg text-white">
+            College of Fellows of IPPSCC-USA
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-100/70">
+            You are a Distinguished Fellow and a member of the College of Fellows of IPPSCC-USA. This is a fellowship designation, not full membership in IPPSCC-USA.
+          </p>
+        </section>
+      )}
+
       <div className="mt-8 grid gap-5 lg:grid-cols-2">
         {/* Digital ID card */}
         <section aria-label="Digital membership card" className="grain relative overflow-hidden border border-gold-500/40 bg-gradient-to-br from-ink-800 via-ink-900 to-ink-950 p-6 sm:p-7">
           <div aria-hidden="true" className="absolute top-0 left-0 h-full w-1.5 bg-gradient-to-b from-gold-500 via-gold-500 to-crimson-500" />
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-mono text-[0.6rem] tracking-[0.26em] text-gold-300 uppercase">IPPSCC-USA · Member</p>
+              <p className="font-mono text-[0.6rem] tracking-[0.26em] text-gold-300 uppercase">
+                {isDistinguishedFellow ? "IPPSCC-USA · College of Fellows" : "IPPSCC-USA · Member"}
+              </p>
               <p className="mt-2 font-display text-2xl leading-tight text-white">{member.name}</p>
               <p className="mt-1 text-sm text-ink-100/65">{member.rank}</p>
             </div>
